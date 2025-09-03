@@ -218,30 +218,23 @@ function render(list){
   list.forEach(q => {
     if (edits[q.id]) Object.assign(q, edits[q.id]); // apply local edits
 
-    const opts = asArrayOptions(q.options);
-    const optStrHtml = opts.map(o => {
+const opts = asArrayOptions(q.options);
+const corr = normalizeCorrect(q.correct);   // you already added this helper above
+
+const div = document.createElement('div');
+div.className = 'question' + (show ? ' show' : '');
+
+const flagged = Array.isArray(wrong) && wrong.includes(q.id)
+  ? `<span class="flag">🚩 wrong</span>` : '';
+
+const optsHtml = opts.map(o => {
   const isCorrect = show && corr.includes(String(o.key).toLowerCase());
   const cls = 'opt' + (isCorrect ? ' correct' : '');
   return `<div class="${cls}">${o.key}. ${o.text}</div>`;
 }).join('');
 
-    const corr = Array.isArray(q.correct)
-  ? q.correct.map(s => String(s).trim().toLowerCase())
-  : String(q.correct || '')
-      .split(/[,\s]+/)
-      .map(s => s.trim().toLowerCase())
-      .filter(Boolean);
+const ansLine = show ? `<div class="ansline">Correct: ${corr.join(', ')}</div>` : '';
 
-    const div = document.createElement('div');
-    div.className = 'question' + (show ? ' show' : '');
-
-    const flagged = Array.isArray(wrong) && wrong.includes(q.id) ? `<span class="flag">🚩 wrong</span>` : '';
-    const optsHtml = opts.map(o => {
-      const isCorrect = show && corr.includes(String(o.key).toLowerCase());
-      const cls = 'opt' + (isCorrect ? ' correctOpt' : '');
-      return `<div class="${cls}">${o.key}. ${o.text}</div>`;
-    }).join('');
-    const ansLine = show ? `<div class="ansline">Correct: ${corr.join(', ')}</div>` : '';
 
     div.innerHTML = `
       <div class="id">${q.id} ${flagged}</div>
@@ -464,16 +457,17 @@ if (saveBtn) {
     // --- Search UI ---
     let t = null;
     document.getElementById('q').addEventListener('input', () => { clearTimeout(t); t = setTimeout(applySearch, 150); });
-    document.getElementById('clearBtn').addEventListener('click', () => {
-  document.getElementById('q').value = ''; applySearch();
-      document.getElementById('toggle-answers').addEventListener('click', (e) => {
+document.getElementById('clearBtn').addEventListener('click', () => {
+  document.getElementById('q').value = '';
+  applySearch();
+});
+
+document.getElementById('toggle-answers').addEventListener('click', (e) => {
   showAnswers = !showAnswers;
   e.target.textContent = showAnswers ? 'Hide Answers' : 'Show Answers';
   applySearch();
 });
 
-  applySearch();
-});
 
     dbg('dom wired:', !!document.getElementById('list'), !!document.getElementById('exportBtn'), !!document.getElementById('addQBtn'), !!document.getElementById('editor'));
   </script>
