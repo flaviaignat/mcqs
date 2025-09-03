@@ -33,6 +33,20 @@
   .checkbox{transform:scale(1.1);margin-right:8px}
   .filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px 0}
   .filters input{padding:8px;border:1px solid var(--border);border-radius:8px;width:100%;max-width:320px}
+  .btn-link {
+  display:inline-block;
+  padding:10px 14px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#f3f4f6;
+  color:inherit;
+  text-decoration:none;
+  margin-right:8px;
+}
+.btn-link:hover {
+  background:#e5e7eb;
+}
+
 </style>
 </head>
 <body>
@@ -54,6 +68,12 @@
   <div class="card">
     <p class="qtitle" id="qtitle"></p>
     <div id="options"></div>
+    <div style="margin-top:12px;">
+ <a href="./topics.html" class="btn-link">Topics</a>
+<a href="./review_all.html" class="btn-link">Review All</a>
+
+</div>
+
     <div class="controls">
       <button id="checkBtn" class="primary">Check</button>
       <button id="saveBtn">Save For Later</button>
