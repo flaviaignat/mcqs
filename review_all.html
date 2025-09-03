@@ -17,13 +17,37 @@
     .stem { font-weight: 600; margin-bottom: 6px; }
     .options { margin-left: 16px; }
     .opt { margin: 2px 0; }
-    .correctOpt { font-weight:600; color:#16a34a; }
-    .ansline { color:#16a34a; font-style: italic; margin-top:6px; display:none; }
+.correct {
+  border-left: 4px solid #10b981; 
+  padding-left: 6px; 
+}
+.ansline {
+  color: #10b981;
+  font-weight: 600;
+  margin-top: 6px;
+}
     .show .ansline { display:block; }
     .flag { color:#dc2626; font-size:12px; margin-left:6px; }
     footer { margin:24px 0; text-align:center; font-size:14px; }
     #debug { white-space:pre-wrap; background:#0b1020; color:#a7ffb1; padding:10px; border-radius:8px; font-size:12px; margin:12px 0; }
     #debug b { color:#fff; }
+    .float-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #2563eb;           /* var(--primary) equivalent here */
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 999px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+  transition: background 0.2s ease;
+}
+.float-btn:hover { background: #1d4ed8; }
+
   </style>
 </head>
 <body>
@@ -37,10 +61,7 @@
   <div class="topbar">
     <input id="q" type="search" placeholder="Search stems/options (e.g., pneumonia, fracture)…">
     <button id="clearBtn">Clear</button>
-    <label style="display:flex; align-items:center; gap:6px;">
-      <input type="checkbox" id="toggleAns">
-      <span>Show answers</span>
-    </label>
+
     <button id="exportBtn">Export merged JSON</button>
     <button id="addQBtn">Add Question</button>
     <div class="count" id="count">Loading…</div>
@@ -132,9 +153,19 @@ e. </textarea>
     let CURRENT = [];
     let editingQ = null;
     let editorHost = null; 
+    let showAnswers = false;
     // the .question div we clicked
 
     // --- Helpers ---
+    function normalizeCorrect(c){
+  if (Array.isArray(c)) return c.map(x => String(x).trim().toLowerCase());
+  if (typeof c === 'string')
+    return c.split(/[,\s]+/)          // split "a, c, e" or "a c e"
+            .map(s => s.replace(/[^a-z0-9]/gi,'').toLowerCase())
+            .filter(Boolean);
+  return [];
+}
+
     function romanToInt(s){
       if(!s) return 0;
       const map = {I:1,V:5,X:10,L:50,C:100,D:500,M:1000};
@@ -182,13 +213,25 @@ function render(list){
   const container = document.getElementById('list');
   document.getElementById('count').textContent = list.length + ' questions';
   container.innerHTML = '';
-  const show = document.getElementById('toggleAns').checked;
+  const show = showAnswers;
 
   list.forEach(q => {
     if (edits[q.id]) Object.assign(q, edits[q.id]); // apply local edits
 
     const opts = asArrayOptions(q.options);
-    const corr = Array.isArray(q.correct) ? q.correct.map(s => String(s).toLowerCase()) : [];
+    const optStrHtml = opts.map(o => {
+  const isCorrect = show && corr.includes(String(o.key).toLowerCase());
+  const cls = 'opt' + (isCorrect ? ' correct' : '');
+  return `<div class="${cls}">${o.key}. ${o.text}</div>`;
+}).join('');
+
+    const corr = Array.isArray(q.correct)
+  ? q.correct.map(s => String(s).trim().toLowerCase())
+  : String(q.correct || '')
+      .split(/[,\s]+/)
+      .map(s => s.trim().toLowerCase())
+      .filter(Boolean);
+
     const div = document.createElement('div');
     div.className = 'question' + (show ? ' show' : '');
 
@@ -226,7 +269,7 @@ function render(list){
     }
 
     // --- Data load ---
-    fetch('questions_parsed_full_v2.json?nocache=' + Date.now())
+    fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
       .then(r => { dbg('fetch status', r.status); return r.json(); })
       .then(data => { ALL = data || []; dbg('json length', ALL.length); applySearch(); })
       .catch(err => { dbg('fetch/json error:', err); document.getElementById('list').textContent = 'Failed to load questions.'; document.getElementById('count').textContent = ''; });
@@ -378,7 +421,7 @@ if (saveBtn) {
     // --- Export merged JSON ---
     document.getElementById('exportBtn').addEventListener('click', async () => {
       try {
-        const base = await fetch('questions_parsed_full_v2.json?nocache=' + Date.now()).then(r=>r.json());
+        const base = await fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' }).then(r=>r.json());
         const byId = new Map();
         (base||[]).forEach(q => q && q.id && byId.set(q.id, q));
         const editsObj = JSON.parse(localStorage.getItem('edits') || '{}');
@@ -422,12 +465,18 @@ if (saveBtn) {
     let t = null;
     document.getElementById('q').addEventListener('input', () => { clearTimeout(t); t = setTimeout(applySearch, 150); });
     document.getElementById('clearBtn').addEventListener('click', () => {
-  document.getElementById('q').value = '';
+  document.getElementById('q').value = ''; applySearch();
+      document.getElementById('toggle-answers').addEventListener('click', (e) => {
+  showAnswers = !showAnswers;
+  e.target.textContent = showAnswers ? 'Hide Answers' : 'Show Answers';
   applySearch();
 });
-    document.getElementById('toggleAns').addEventListener('change', applySearch);
+
+  applySearch();
+});
 
     dbg('dom wired:', !!document.getElementById('list'), !!document.getElementById('exportBtn'), !!document.getElementById('addQBtn'), !!document.getElementById('editor'));
   </script>
+  <button id="toggle-answers" class="float-btn">Show Answers</button>
 </body>
 </html>
