@@ -146,7 +146,7 @@ function unflagWrong(id){
   localStorage.setItem('wrong_ids', JSON.stringify(wrong));
 }
 
-fetch('questions_parsed_full_v2.json')
+fetch('all_ques_checked.json')
   .then(r => r.json())
   .then(data => { ALL = data; mergeAdded(); idx = 0; render(); })
   .catch(err => { document.getElementById('qtitle').textContent = 'Failed to load questions.'; });
