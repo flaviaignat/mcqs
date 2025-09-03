@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MCQ Practice</title>
+<style>
+  :root{
+    --bg:#ffffff; --card:#ffffff; --border:#d9d9d9; --text:#1f2937; --muted:#6b7280; --primary:#2563eb; --btn:#f3f4f6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);}
+  header{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:#fff;}
+  header .status{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted);}
+  header .url{max-width:65%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6b7280}
+  main{max-width:760px;margin:24px auto 96px;padding:0 16px;}
+  .card{border:1px solid var(--border);border-radius:12px;padding:18px;background:var(--card);}
+  .qtitle{font-weight:600;margin:0 0 10px 0}
+  .option{display:block;margin:8px 0;font-size:15px;line-height:1.35;}
+  .controls{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap}
+  button{border:1px solid var(--border);background:var(--btn);padding:8px 14px;border-radius:8px;font-size:14px;cursor:pointer;}
+  button.primary{background:#2563eb;color:#fff;border-color:#1d4ed8}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .progress{margin-top:10px;color:var(--muted);font-size:14px}
+  .feedback{margin-top:8px;font-weight:600}
+  .correct{color:#16a34a}
+  .wrong{color:#dc2626}
+  .footer{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;padding:14px;background:linear-gradient(to top, rgba(255,255,255,0.95), rgba(255,255,255,0.8));border-top:1px solid var(--border);gap:10px;}
+  .footer button{min-width:120px}
+  .nav{display:flex;align-items:center;gap:8px;margin-top:14px;color:var(--muted);font-size:14px}
+  .divider{flex:1}
+  .hint{font-size:13px;color:var(--muted);margin-top:4px}
+  .checkbox{transform:scale(1.1);margin-right:8px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px 0}
+  .filters input{padding:8px;border:1px solid var(--border);border-radius:8px;width:100%;max-width:320px}
+</style>
+</head>
+<body>
+<header>
+  <div class="status">
+    <span id="clock">--:--</span>
+    <span aria-hidden="true">🔕</span>
+  </div>
+  <div class="url">quiz.practice</div>
+  <div style="width:24px"></div>
+</header>
+
+<main>
+  <div class="filters">
+    <input id="search" placeholder="Search in question text..." />
+    <button id="applySearch">Search</button>
+    <button id="clearSearch">Clear</button>
+  </div>
+  <div class="card">
+    <p class="qtitle" id="qtitle"></p>
+    <div id="options"></div>
+    <div class="controls">
+      <button id="checkBtn" class="primary">Check</button>
+      <button id="saveBtn">Save For Later</button>
+      <button id="continueBtn" disabled>Continue</button>
+      <button id="showAnsBtn">Reveal Answer</button>
+      <button id="reportBtn">Report Error</button>
+      <button id="editBtn">Edit</button>
+      <button id="addQBtn">Add Question</button>
+      <button id="exportBtn">Export Corrections</button>
+      <button id="reviewWrongBtn">Review Wrong</button>
+      <button id="showAllBtn">All Questions</button>
+      <button id="clearFlagsBtn">Clear Flags</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <div class="progress" id="progress"></div>
+  </div>
+<div id="editor" style="display:none; margin-top:10px; padding:10px; border:1px solid #ddd; border-radius:8px;">
+  <label>Stem:<br><textarea id="editStem" style="width:100%; height:60px;"></textarea></label><br><br><label>Type:<br>
+  <select id="editType" style="width:100%;">
+    <option value="single">single (one correct)</option>
+    <option value="multi">multi (multiple correct)</option>
+  </select>
+</label><br><br>
+
+  <label>Options:<br><textarea id="editOptions" style="width:100%; height:100px;"></textarea></label><br><br>
+  <label>Correct answers (letters, comma-separated):<br>
+    <input id="editCorrect" style="width:100%;" />
+  </label><br><br>
+  <button id="saveEditBtn">Save Changes</button>
+  <button id="cancelEditBtn">Cancel</button>
+</div>
+  <div id="newQ" style="display:none; margin-top:10px; padding:10px; border:1px solid #ddd; border-radius:8px;">
+  <h4>Add New Question</h4>
+  <label>Question ID (e.g., XII.110):<br>
+    <input id="newQId" style="width:100%;" />
+  </label><br><br>
+
+  <label>Stem:<br>
+    <textarea id="newQStem" style="width:100%; height:60px;"></textarea>
+  </label><br><br>
+
+  <label>Type:<br>
+    <select id="newQType" style="width:100%;">
+      <option value="single">single (one correct)</option>
+      <option value="multi">multi (multiple correct)</option>
+    </select>
+  </label><br><br>
+
+  <label>Options (one per line, like “a. text”, “b. text”…):<br>
+    <textarea id="newQOptions" style="width:100%; height:120px;"></textarea>
+  </label><br><br>
+
+  <label>Correct answers (letters, comma-separated; e.g., “c” or “a,c,e”):<br>
+    <input id="newQCorrect" style="width:100%;" />
+  </label><br><br>
+
+  <button id="saveNewQBtn">Save Question</button>
+  <button id="cancelNewQBtn">Cancel</button>
+</div>
+  <div class="nav">
+    <button id="prevBtn">◀︎ Prev</button>
+    <div class="divider"></div>
+    <button id="nextBtn">Next ▶︎</button>
+  </div>
+  <p class="hint">Tip: “Save For Later” stores your current selection locally on this device.</p>
+</main>
+
+<div class="footer" role="toolbar" aria-label="Bottom actions">
+  <button id="jumpStartBtn">Jump to start</button>
+  <button id="jumpEndBtn">Jump to end</button>
+</div>
+
+<script>
+let ALL = [];
+let QUESTIONS = [];
+let idx = 0;
+const selections = loadSelections();
+// ---- Wrong-answers flags (shared with stems_and_options page) ----
+let wrong = JSON.parse(localStorage.getItem('wrong_ids') || '[]');
+
+function isFlagged(id){ return Array.isArray(wrong) && wrong.includes(id); }
+function flagWrong(id){
+  if(!Array.isArray(wrong)) wrong = [];
+  if(!wrong.includes(id)) wrong.push(id);
+  localStorage.setItem('wrong_ids', JSON.stringify(wrong));
+}
+function unflagWrong(id){
+  if(!Array.isArray(wrong)) return;
+  wrong = wrong.filter(x => x !== id);
+  localStorage.setItem('wrong_ids', JSON.stringify(wrong));
+}
+
+fetch('questions_parsed_full_v2.json')
+  .then(r => r.json())
+  .then(data => { ALL = data; mergeAdded(); idx = 0; render(); })
+  .catch(err => { document.getElementById('qtitle').textContent = 'Failed to load questions.'; });
+
+function render(){
+  const q = QUESTIONS[idx];
+  if(!q){ document.getElementById('qtitle').textContent = 'No questions match.'; return;}
+  const flagged = isFlagged(q.id) ? ' 🚩' : '';
+document.getElementById('qtitle').textContent = `${q.id}${flagged}  ${q.stem}`;
+
+  const optWrap = document.getElementById('options');
+  optWrap.innerHTML = '';
+  q.options.forEach(opt => {
+    const label = document.createElement('label');
+    label.className = 'option';
+    const input = document.createElement('input');
+    input.type = (q.type === 'single') ? 'radio' : 'checkbox';
+    input.name = 'opts';
+    input.value = opt.key;
+    input.className = 'checkbox';
+    const saved = selections[q.id] || [];
+    if(saved.includes(opt.key)) input.checked = true;
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(' ' + opt.text));
+    optWrap.appendChild(label);
+  });
+  document.getElementById('progress').textContent = `${idx+1} of ${QUESTIONS.length}`;
+  setFeedback('');
+  document.getElementById('continueBtn').disabled = true;
+}
+
+function setFeedback(text, cls=''){
+  const fb = document.getElementById('feedback');
+  fb.textContent = text;
+  fb.className = 'feedback ' + cls;
+}
+
+document.getElementById('checkBtn').addEventListener('click', () => {
+  const q = QUESTIONS[idx];
+  const selected = Array.from(document.querySelectorAll('input[name="opts"]:checked')).map(i=>i.value).sort();
+  const correct = [...q.correct].sort();
+
+  if (JSON.stringify(selected) === JSON.stringify(correct)) {
+    setFeedback('✅ Correct!', 'correct');
+    document.getElementById('continueBtn').disabled = false;
+    if (isFlagged(q.id)) unflagWrong(q.id);               // unflag if it was wrong before
+    document.getElementById('qtitle').textContent = `${q.id}  ${q.stem}`; // remove 🚩 immediately
+  } else {
+    setFeedback('❌ Try again', 'wrong');
+    flagWrong(q.id);                                      // flag as wrong
+    document.getElementById('qtitle').textContent = `${q.id} 🚩  ${q.stem}`; // show 🚩 immediately
+  }
+});
+
+
+document.getElementById('showAnsBtn').addEventListener('click', () => {
+  const q = QUESTIONS[idx];
+  setFeedback('Answer: ' + q.correct.join(', '), 'correct');
+});
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+  const q = QUESTIONS[idx];
+  const selected = Array.from(document.querySelectorAll('input[name="opts"]:checked')).map(i=>i.value);
+  selections[q.id] = selected;
+  localStorage.setItem('mcqSelections', JSON.stringify(selections));
+  setFeedback('💾 Saved for later on this device.');
+  setTimeout(()=> setFeedback(''), 1200);
+});
+
+document.getElementById('continueBtn').addEventListener('click', goNext);
+document.getElementById('prevBtn').addEventListener('click', () => { if(idx>0){ idx--; render(); }});
+document.getElementById('nextBtn').addEventListener('click', goNext);
+document.getElementById('jumpStartBtn').addEventListener('click', () => { idx = 0; render(); });
+document.getElementById('jumpEndBtn').addEventListener('click', () => { idx = QUESTIONS.length-1; render(); });
+// Review only flagged questions
+document.getElementById('reviewWrongBtn').addEventListener('click', () => {
+  const set = new Set(wrong || []);
+  if (set.size === 0) {
+    setFeedback('No flagged questions yet. Answer one incorrectly to flag it.', '');
+    return;
+  }
+  const merged = mergeAdded(); // your helper that returns current full list (ALL + added, sorted)
+  QUESTIONS = merged.filter(q => set.has(q.id));
+  idx = 0;
+  render();
+  setFeedback(`Reviewing ${QUESTIONS.length} flagged question(s).`, '');
+});
+
+// Return to all questions
+document.getElementById('showAllBtn').addEventListener('click', () => {
+  QUESTIONS = mergeAdded();
+  idx = 0;
+  render();
+  setFeedback('Showing all questions.', '');
+});
+
+// Optional: clear all flags
+const clearFlagsBtn = document.getElementById('clearFlagsBtn');
+if (clearFlagsBtn) {
+  clearFlagsBtn.addEventListener('click', () => {
+    if (!wrong || wrong.length === 0) { setFeedback('No flags to clear.', ''); return; }
+    const ok = confirm(`Clear ${wrong.length} flagged question(s)?`);
+    if (!ok) return;
+    wrong = [];
+    localStorage.setItem('wrong_ids', JSON.stringify(wrong));
+    setFeedback('All flags cleared.', '');
+    render(); // refresh current title to remove 🚩 if shown
+  });
+}
+
+document.getElementById('applySearch').addEventListener('click', () => {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  // always search the merged list so added questions are included
+  const merged = mergeAdded();
+  if(!q){ QUESTIONS = merged; idx = 0; render(); return; }
+  QUESTIONS = merged.filter(item => {
+    const optsText = (Array.isArray(item.options) ? item.options.map(o=>o.text) 
+                    : Object.values(item.options||{})).join(' ');
+    return (item.stem + ' ' + optsText).toLowerCase().includes(q);
+  });
+  idx = 0; render();
+});
+
+document.getElementById('clearSearch').addEventListener('click', () => {
+  document.getElementById('search').value = '';
+  QUESTIONS = mergeAdded(); idx = 0; render();
+});
+
+function goNext(){
+  if(idx < QUESTIONS.length-1){ idx++; render(); }
+  else { setFeedback("🎉 You've reached the end.", 'correct'); }
+}
+
+function loadSelections(){
+  try{ return JSON.parse(localStorage.getItem('mcqSelections') || '{}'); }catch(e){ return {}; }
+}
+(function initClock(){
+  const clock = document.getElementById('clock');
+  const upd = ()=>{
+    const d = new Date();
+    const pad = n => n.toString().padStart(2,'0');
+    clock.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+  upd(); setInterval(upd, 10000);
+})();
+// --- Error reporting and editing feature ---
+let reports = JSON.parse(localStorage.getItem('reports') || '[]');
+let edits = JSON.parse(localStorage.getItem('edits') || '{}');
+
+document.getElementById('reportBtn').addEventListener('click', () => {
+  const q = QUESTIONS[idx];
+  const reason = prompt("Describe the error (stem/options/answer mismatch):");
+  if(reason){
+    reports.push({id:q.id, stem:q.stem, reason});
+    localStorage.setItem('reports', JSON.stringify(reports));
+    alert("Error reported and saved locally.");
+  }
+});
+document.getElementById('editBtn').addEventListener('click', () => {
+  const q = QUESTIONS[idx];
+  const ed = document.getElementById('editor');
+  ed.style.display = 'block';
+
+  // Fill fields
+  document.getElementById('editStem').value = q.stem || '';
+  document.getElementById('editType').value = (q.type === 'multi' ? 'multi' : 'single');
+
+  // Support both array/object option shapes
+  const optsArray = Array.isArray(q.options)
+    ? q.options
+    : Object.keys(q.options || {}).map(k => ({ key: k, text: String(q.options[k]) }));
+
+  document.getElementById('editOptions').value =
+    optsArray.map(o => `${o.key}. ${o.text}`).join('\n');
+
+  document.getElementById('editCorrect').value = (q.correct || []).join(',');
+});
+
+
+document.getElementById('cancelEditBtn').addEventListener('click', () => {
+  document.getElementById('editor').style.display = 'none';
+});
+
+document.getElementById('saveEditBtn').addEventListener('click', () => {
+  const q = QUESTIONS[idx];
+
+  // Stem & Type
+  q.stem = document.getElementById('editStem').value.trim();
+  q.type = document.getElementById('editType').value;
+
+  // Options: parse each line like "a. text"
+  const optsLines = document.getElementById('editOptions').value
+    .split('\n').map(l => l.trim()).filter(Boolean);
+
+  const options = [];
+  for (const line of optsLines) {
+    const m = line.match(/^([a-e])\.\s*(.+)$/i);
+    if (!m) { alert('Each option must look like "a. text" (a–e).'); return; }
+    options.push({ key: m[1].toLowerCase(), text: m[2] });
+  }
+  q.options = options;
+
+  // Correct letters
+  let corr = document.getElementById('editCorrect').value
+    .split(',').map(x => x.trim().toLowerCase()).filter(Boolean);
+
+  // If user chose single but entered multiple, keep only first
+  if (q.type === 'single' && corr.length > 1) {
+    alert('Type is single; keeping only the first correct option.');
+    corr = [corr[0]];
+  }
+  q.correct = corr;
+
+  // Persist local edits
+  edits[q.id] = q;
+  localStorage.setItem('edits', JSON.stringify(edits));
+
+  alert('Edits saved locally.');
+  document.getElementById('editor').style.display = 'none';
+  render(); // re-render with edits
+});
+
+
+// Apply edits when rendering
+const oldRender = render;
+render = function(){
+  const q = QUESTIONS[idx];
+  if (q && edits && edits[q.id]) {
+    Object.assign(q, edits[q.id]);
+  }
+  // normalize options so both array and object shapes render
+  if (q && !Array.isArray(q.options) && q.options && typeof q.options === 'object') {
+    q.options = Object.keys(q.options).sort().map(k => ({key:k, text:String(q.options[k])}));
+  }
+  oldRender();
+};
+  // ----- Add-new-question feature -----
+let added = JSON.parse(localStorage.getItem('added_questions') || '[]');
+
+// merge added questions after the JSON loads
+// (put this right after you set ALL = data; QUESTIONS = ALL;)
+  function romanToInt(s){
+  if(!s) return 0;
+  const map = {I:1,V:5,X:10,L:50,C:100,D:500,M:1000};
+  let total=0, prev=0; s=s.toUpperCase();
+  for(let i=s.length-1;i>=0;i--){
+    const v = map[s[i]]||0;
+    total += (v<prev)?-v:v;
+    prev = v;
+  }
+  return total;
+}
+function sortById(a,b){
+  const pa = String(a.id||'').split('.');
+  const pb = String(b.id||'').split('.');
+  const A = /^\d+$/.test(pa[0]) ? parseInt(pa[0],10) : romanToInt(pa[0]);
+  const B = /^\d+$/.test(pb[0]) ? parseInt(pb[0],10) : romanToInt(pb[0]);
+  const a2 = parseInt(pa[1]||'0',10);
+  const b2 = parseInt(pb[1]||'0',10);
+  return (A-B) || (a2-b2);
+}
+function mergeAdded() {
+  if (!Array.isArray(added)) added = [];
+  // dedupe by id (added overrides base if same id)
+  const byId = new Map();
+  ALL.forEach(q => q && q.id && byId.set(q.id, q));
+  added.forEach(q => q && q.id && byId.set(q.id, q));
+  // create merged + natural sort
+  const merged = Array.from(byId.values()).sort(sortById);
+  QUESTIONS = merged;
+  return merged; // handy for search
+}
+ // hook into your fetch then(...) where you currently have: 
+ // .then(data => { ALL = data; QUESTIONS = ALL; render(); })
+ // change to:
+ // .then(data => { ALL = data; QUESTIONS = ALL; mergeAdded(); render(); })
+
+// open the new-question panel
+document.getElementById('addQBtn').addEventListener('click', () => {
+  document.getElementById('newQ').style.display = 'block';
+  // sensible defaults
+  document.getElementById('newQId').value = '';
+  document.getElementById('newQStem').value = '';
+  document.getElementById('newQType').value = 'single';
+  document.getElementById('newQOptions').value = 'a. \nb. \nc. \nd. \ne. ';
+  document.getElementById('newQCorrect').value = '';
+});
+
+// cancel
+document.getElementById('cancelNewQBtn').addEventListener('click', () => {
+  document.getElementById('newQ').style.display = 'none';
+});
+
+// save
+document.getElementById('saveNewQBtn').addEventListener('click', () => {
+  const id = document.getElementById('newQId').value.trim();
+  const stem = document.getElementById('newQStem').value.trim();
+  const type = document.getElementById('newQType').value;
+  const optsLines = document.getElementById('newQOptions').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  const correct = document.getElementById('newQCorrect').value.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+
+  if(!id || !stem || optsLines.length < 2 || correct.length === 0){
+    alert('Please fill ID, stem, at least 2 options, and at least 1 correct letter.');
+    return;
+  }
+
+  // parse options like "a. text"
+  const options = [];
+  for(const line of optsLines){
+    const m = line.match(/^([a-e])\.\s*(.+)$/i);
+    if(!m){ alert('Options must look like "a. text"'); return; }
+    options.push({ key: m[1].toLowerCase(), text: m[2] });
+  }
+
+  const q = { id, stem, type, options, correct };
+
+  // prevent duplicate IDs with existing content
+  const existsInAll = QUESTIONS.some(x => x.id === id);
+  if(existsInAll){
+    const ok = confirm('A question with this ID exists. Add anyway as a new item?');
+    if(!ok) return;
+  }
+
+  added.push(q);
+  localStorage.setItem('added_questions', JSON.stringify(added));
+
+  // add to in-memory list so it appears immediately
+  QUESTIONS.push(q);
+
+  alert('New question saved (locally). It will appear in search and navigation.');
+  document.getElementById('newQ').style.display = 'none';
+  // jump to the new question
+  idx = QUESTIONS.length - 1;
+  render();
+});
+  document.getElementById('exportBtn').addEventListener('click', () => {
+  const data = {
+    reports: reports,
+    edits: edits,
+    added: added || []
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'corrections.json';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
