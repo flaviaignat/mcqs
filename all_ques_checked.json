@@ -706,7 +706,7 @@
   },
   {
     "id": "1.13",
-    "stem": "2. Ulcerative disease - p.1173 -1176 PROFMIUTESCU GRIDS 10\nPeptic Ulcer",
+    "stem": "III Peptic Ulcer",
     "type": "multi",
     "options": [
       {
@@ -4371,7 +4371,7 @@
   },
   {
     "id": "II.74",
-    "stem": "The patient with pericarditis presents the following clinical and",
+    "stem": "The patient with pericarditis presents the following clinical and paraclinical picture",
     "type": "multi",
     "options": [
       {
@@ -4870,7 +4870,7 @@
   },
   {
     "id": "II.90",
-    "stem": "The following complications of hypertension require hospitalization and emergency",
+    "stem": "The following complications of hypertension require hospitalization and emergency treatment, except:",
     "type": "single",
     "options": [
       {
@@ -4900,7 +4900,8 @@
   },
   {
     "id": "II.91",
-    "stem": "The treatment of the hypertensive patient is performed by the family doctor, the",
+    "stem": "The treatment of the hypertensive patient is performed by the family doctor, 
+    the following situations require referral to a specialist consultation:",
     "type": "multi",
     "options": [
       {
@@ -5646,6 +5647,10 @@
     "type": "multi",
     "options": [
       {
+        "key": "a",
+        "text": "a. Is more prevalent in developing countries, in connection with a higher rate of H. pylori infection"
+      },
+      {
         "key": "b",
         "text": "b. In developed countries the percentage of peptic ulcers induced by NSAIDs increases, while the prevalence of H. pylori infection is decreasing"
       },
@@ -5663,6 +5668,7 @@
       }
     ],
     "correct": [
+      "a",
       "b",
       "d",
       "e"
@@ -5993,7 +5999,7 @@
   },
   {
     "id": "III.27",
-    "stem": "The following statements regarding the treatment of Helicobacter pylori infection are",
+    "stem": "The following statements regarding the treatment of Helicobacter pylori infection are true",
     "type": "multi",
     "options": [
       {
@@ -6271,7 +6277,7 @@
   },
   {
     "id": "III.36",
-    "stem": "The following statements about the aetiology and pathogenesis of inflammatory bowel",
+    "stem": "The following statements about the aetiology and pathogenesis of inflammatory bowel disease are true",
     "type": "multi",
     "options": [
       {
@@ -6304,7 +6310,7 @@
   },
   {
     "id": "III.37",
-    "stem": "The following statements about the pathogenesis of inflammatory bowel disease are",
+    "stem": "The following statements about the pathogenesis of inflammatory bowel disease are true",
     "type": "multi",
     "options": [
       {
@@ -7374,7 +7380,7 @@
   },
   {
     "id": "III.71",
-    "stem": "The following statements about explorations to assess the severity of cirrhosis of the",
+    "stem": "The following statements about explorations to assess the severity of cirrhosis of the liver are true",
     "type": "multi",
     "options": [
       {
