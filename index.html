@@ -102,6 +102,17 @@
   </main>
 
   <script>
+    // ---- Debug banner ----
+(function(){
+  const box = document.createElement('pre');
+  box.id = 'dbg';
+  box.style.cssText = 'white-space:pre-wrap;background:#0b1020;color:#a7ffb1;padding:10px;border-radius:8px;margin:10px 16px;display:none';
+  document.body.insertBefore(box, document.body.firstChild.nextSibling); // under header
+  function log(...a){ box.style.display='block'; console.log(...a); box.textContent += (box.textContent ? '\n' : '') + a.map(x=>String(x)).join(' '); }
+  window.addEventListener('error', e => log('JS error:', e.message, '@', (e.filename||'').split('/').pop()+':'+e.lineno));
+  window.dbg = log;
+})();
+
   // ---------- Helpers ----------
   function bind(id, ev, fn){
     const el = document.getElementById(id);
@@ -323,18 +334,31 @@ bind('showAll','click', (e) => { e.preventDefault(); filterMode = 'all';        
 
 // ---------- Data load ----------
 fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
-  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(r => {
+    dbg('fetch status', r.status);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
   .then(raw => {
+    // Inspect structure
+    const keys = raw && typeof raw === 'object' && !Array.isArray(raw) ? Object.keys(raw) : [];
+    dbg('json type', Array.isArray(raw) ? 'array' : typeof raw, 'keys', keys.join(',') || '-');
+
+    // Adapt to either array or {questions:[...]} or {items:[...]}
     ALL = Array.isArray(raw) ? raw : (raw.questions ?? raw.items ?? []);
     QUESTIONS = ALL.slice();
     idx = 0;
-    render();        // <-- no stray character before this
+
+    dbg('json length', ALL.length);
+    render();
   })
   .catch(err => {
     console.error('Failed to load questions:', err);
+    dbg('load fail:', err && err.message ? err.message : String(err));
     const title = document.getElementById('qtitle');
     if (title) title.textContent = 'Failed to load questions.';
   });
+
 
   </script>
 </body>
