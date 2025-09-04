@@ -23,7 +23,7 @@
     let edits = JSON.parse(localStorage.getItem('edits') || '{}');
     let added = JSON.parse(localStorage.getItem('added_questions') || '[]');
 
-    fetch('questions_parsed_full_v2.json')
+    fetch('all_ques_checked.json')
       .then(r => r.json())
       .then(data => {
         let questions = data;
