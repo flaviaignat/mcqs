@@ -221,27 +221,52 @@ const userFlagged = flaggedByUser.includes(q.id) ? `<span class="flag">⭐ revie
   setFeedback('');
   document.getElementById('continueBtn').disabled = true;
 }
-document.getElementById('showReview').addEventListener('click', (e) => {
+// --- Event listeners block ---
+let t = null;
+
+// Search box (debounced)
+bind('q','input', () => {
+  clearTimeout(t);
+  t = setTimeout(applySearch, 150);
+});
+
+// Manual search
+bind('applySearch','click', () => {
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const merged = mergeAdded(); // search in merged list so added questions appear
+  if(!q){ QUESTIONS = merged; idx = 0; render(); return; }
+  QUESTIONS = merged.filter(item => {
+    const optsText = (Array.isArray(item.options) ? item.options.map(o=>o.text)
+                    : Object.values(item.options||{})).join(' ');
+    return (item.stem + ' ' + optsText).toLowerCase().includes(q);
+  });
+  idx = 0; render();
+});
+
+// Clear search
+bind('clearSearch','click', () => {
+  document.getElementById('search').value = '';
+  QUESTIONS = mergeAdded(); idx = 0; render();
+});
+
+// My Review (⭐ + 🚩)
+bind('showReview','click', (e) => {
   e.preventDefault();
   filterReviewOnly = true;
-  idx = 0;            // start at the first in the filtered set
+  idx = 0;
   render();
 });
 
-document.getElementById('showAll').addEventListener('click', (e) => {
+// All Questions
+bind('showAll','click', (e) => {
   e.preventDefault();
   filterReviewOnly = false;
   idx = 0;
   render();
 });
 
-function setFeedback(text, cls=''){
-  const fb = document.getElementById('feedback');
-  fb.textContent = text;
-  fb.className = 'feedback ' + cls;
-}
-
-document.getElementById('checkBtn').addEventListener('click', () => {
+// Check current answer
+bind('checkBtn','click', () => {
   const q = QUESTIONS[idx];
   const selected = Array.from(document.querySelectorAll('input[name="opts"]:checked')).map(i=>i.value).sort();
   const correct = [...q.correct].sort();
@@ -249,36 +274,36 @@ document.getElementById('checkBtn').addEventListener('click', () => {
   if (JSON.stringify(selected) === JSON.stringify(correct)) {
     setFeedback('✅ Correct!', 'correct');
     document.getElementById('continueBtn').disabled = false;
-    if (isFlagged(q.id)) unflagWrong(q.id);               // unflag if it was wrong before
+    if (isFlagged(q.id)) unflagWrong(q.id);
     document.getElementById('qtitle').textContent = `${q.id}  ${q.stem}`; // remove 🚩 immediately
   } else {
     setFeedback('❌ Try again', 'wrong');
-    flagWrong(q.id);                                      // flag as wrong
+    flagWrong(q.id);
     document.getElementById('qtitle').textContent = `${q.id} 🚩  ${q.stem}`; // show 🚩 immediately
   }
 });
 
-document.getElementById('flagBtn').addEventListener('click', () => {
-  const q = CURRENT[idx];  // CURRENT + idx should already be in your code
+// ⭐ Flag for review (your own toggle)
+bind('flagBtn','click', () => {
+  const q = QUESTIONS[idx];        // use current rendered question
   if (!q) return;
-
   if (!flaggedByUser.includes(q.id)) {
     flaggedByUser.push(q.id);
   } else {
-    // toggle: if already flagged, remove it
     flaggedByUser = flaggedByUser.filter(id => id !== q.id);
   }
-
   localStorage.setItem('user_flags', JSON.stringify(flaggedByUser));
   render();
 });
 
-document.getElementById('showAnsBtn').addEventListener('click', () => {
+// Reveal answer (inline)
+bind('showAnsBtn','click', () => {
   const q = QUESTIONS[idx];
   setFeedback('Answer: ' + q.correct.join(', '), 'correct');
 });
 
-document.getElementById('saveBtn').addEventListener('click', () => {
+// Save selection for later (only binds if button exists)
+bind('saveBtn','click', () => {
   const q = QUESTIONS[idx];
   const selected = Array.from(document.querySelectorAll('input[name="opts"]:checked')).map(i=>i.value);
   selections[q.id] = selected;
@@ -287,63 +312,44 @@ document.getElementById('saveBtn').addEventListener('click', () => {
   setTimeout(()=> setFeedback(''), 1200);
 });
 
-document.getElementById('continueBtn').addEventListener('click', goNext);
-document.getElementById('prevBtn').addEventListener('click', () => { if(idx>0){ idx--; render(); }});
-document.getElementById('nextBtn').addEventListener('click', goNext);
-document.getElementById('jumpStartBtn').addEventListener('click', () => { idx = 0; render(); });
-document.getElementById('jumpEndBtn').addEventListener('click', () => { idx = QUESTIONS.length-1; render(); });
-// Review only flagged questions
-document.getElementById('reviewWrongBtn').addEventListener('click', () => {
+// Navigation
+bind('continueBtn','click', () => { goNext(); });
+bind('prevBtn','click', () => { if(idx>0){ idx--; render(); }});
+bind('nextBtn','click', () => { goNext(); });
+bind('jumpStartBtn','click', () => { idx = 0; render(); });
+bind('jumpEndBtn','click', () => { idx = QUESTIONS.length-1; render(); });
+
+// Review only 🚩 wrong (site flags)
+bind('reviewWrongBtn','click', () => {
   const set = new Set(wrong || []);
   if (set.size === 0) {
     setFeedback('No flagged questions yet. Answer one incorrectly to flag it.', '');
     return;
   }
-  const merged = mergeAdded(); // your helper that returns current full list (ALL + added, sorted)
+  const merged = mergeAdded();
   QUESTIONS = merged.filter(q => set.has(q.id));
   idx = 0;
   render();
   setFeedback(`Reviewing ${QUESTIONS.length} flagged question(s).`, '');
 });
 
-// Return to all questions
-document.getElementById('showAllBtn').addEventListener('click', () => {
+// Back to full set
+bind('showAllBtn','click', () => {
   QUESTIONS = mergeAdded();
   idx = 0;
   render();
   setFeedback('Showing all questions.', '');
 });
 
-// Optional: clear all flags
-const clearFlagsBtn = document.getElementById('clearFlagsBtn');
-if (clearFlagsBtn) {
-  clearFlagsBtn.addEventListener('click', () => {
-    if (!wrong || wrong.length === 0) { setFeedback('No flags to clear.', ''); return; }
-    const ok = confirm(`Clear ${wrong.length} flagged question(s)?`);
-    if (!ok) return;
-    wrong = [];
-    localStorage.setItem('wrong_ids', JSON.stringify(wrong));
-    setFeedback('All flags cleared.', '');
-    render(); // refresh current title to remove 🚩 if shown
-  });
-}
-
-document.getElementById('applySearch').addEventListener('click', () => {
-  const q = document.getElementById('search').value.trim().toLowerCase();
-  // always search the merged list so added questions are included
-  const merged = mergeAdded();
-  if(!q){ QUESTIONS = merged; idx = 0; render(); return; }
-  QUESTIONS = merged.filter(item => {
-    const optsText = (Array.isArray(item.options) ? item.options.map(o=>o.text) 
-                    : Object.values(item.options||{})).join(' ');
-    return (item.stem + ' ' + optsText).toLowerCase().includes(q);
-  });
-  idx = 0; render();
-});
-
-document.getElementById('clearSearch').addEventListener('click', () => {
-  document.getElementById('search').value = '';
-  QUESTIONS = mergeAdded(); idx = 0; render();
+// Clear all 🚩 flags (optional button)
+bind('clearFlagsBtn','click', () => {
+  if (!wrong || wrong.length === 0) { setFeedback('No flags to clear.', ''); return; }
+  const ok = confirm(`Clear ${wrong.length} flagged question(s)?`);
+  if (!ok) return;
+  wrong = [];
+  localStorage.setItem('wrong_ids', JSON.stringify(wrong));
+  setFeedback('All flags cleared.', '');
+  render(); // refresh current title to remove 🚩 if shown
 });
 
 function goNext(){
