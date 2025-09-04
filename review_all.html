@@ -64,6 +64,11 @@
 .hide-edits .edit-btn {
   display: none;
 }
+.btn-link.active {
+  background:#e5e7eb;
+  border-color:#cbd5e1;
+  font-weight:600;
+}
 
   </style>
 </head>
@@ -79,7 +84,9 @@
   <div class="topbar">
     <input id="q" type="search" placeholder="Search stems/options (e.g., pneumonia, fracture)…">
     <button id="clearBtn">Clear</button>
-
+    <a id="filterAll" class="btn-link">All</a>
+<a id="filterAttempted" class="btn-link">Attempted</a>
+<a id="filterUnattempted" class="btn-link">Unattempted</a>
     <button id="exportBtn">Export merged JSON</button>
     <button id="addQBtn">Add Question</button>
     <div class="count" id="count">Loading…</div>
@@ -173,6 +180,20 @@ e. </textarea>
     let editorHost = null; 
     let showAnswers = false;
     let editsVisible = true;
+    let filterMode = 'all'; // 'all' | 'attempted' | 'unattempted'
+
+function getFiltered(list){
+  if (filterMode === 'attempted')   return list.filter(q => isAttempted(q.id));
+  if (filterMode === 'unattempted') return list.filter(q => !isAttempted(q.id));
+  return list;
+}
+
+function updateFilterUI(){
+  document.getElementById('filterAll')?.classList.toggle('active', filterMode==='all');
+  document.getElementById('filterAttempted')?.classList.toggle('active', filterMode==='attempted');
+  document.getElementById('filterUnattempted')?.classList.toggle('active', filterMode==='unattempted');
+}
+
     // Attempted tracking (read-only here; written in index.html)
 let attempted = JSON.parse(localStorage.getItem('attempted_ids') || '[]');
 
@@ -291,21 +312,35 @@ div.innerHTML = `
 }
 
 
-    function applySearch(){
-      const term = document.getElementById('q').value.trim().toLowerCase();
-      const merged = mergeBaseAndAdded(ALL, added);
-      if(!term){ render(merged); return; }
-      const filtered = merged.filter(q => {
-        const opts = asArrayOptions(q.options).map(o=>o.text).join(' ');
-        return (q.id + ' ' + q.stem + ' ' + opts).toLowerCase().includes(term);
-      });
-      render(filtered);
-    }
+function applySearch(){
+  const term   = document.getElementById('q').value.trim().toLowerCase();
+  const merged = mergeBaseAndAdded(ALL, added);
+
+  // start from full set, then narrow if a term is present
+  let list = merged;
+
+  if (term){
+    list = merged.filter(q => {
+      const opts = asArrayOptions(q.options).map(o => o.text).join(' ');
+      return (String(q.id) + ' ' + (q.stem || '') + ' ' + opts)
+             .toLowerCase()
+             .includes(term);
+    });
+  }
+
+  // 🔑 always render the **filtered** list (All / Attempted / Unattempted)
+  render(getFiltered(list));
+}
 
     // --- Data load ---
     fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
       .then(r => { dbg('fetch status', r.status); return r.json(); })
-      .then(data => { ALL = data || []; dbg('json length', ALL.length); applySearch(); })
+      .then(data => { 
+  ALL = data || []; 
+  dbg('json length', ALL.length); 
+  applySearch();        // render the questions
+  updateFilterUI();     // highlight the active filter button (e.g. "All")
+})
       .catch(err => { dbg('fetch/json error:', err); document.getElementById('list').textContent = 'Failed to load questions.'; document.getElementById('count').textContent = ''; });
 
    // --- Delegated click for Edit buttons ---
@@ -318,6 +353,26 @@ document.getElementById('list').addEventListener('click', (e) => {
     const host = t.closest('.question');
     openEditor(q, host);
   }
+});
+document.getElementById('filterAll')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  filterMode = 'all';
+  applySearch();      // re-run search then render filtered
+  updateFilterUI();
+});
+
+document.getElementById('filterAttempted')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  filterMode = 'attempted';
+  applySearch();
+  updateFilterUI();
+});
+
+document.getElementById('filterUnattempted')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  filterMode = 'unattempted';
+  applySearch();
+  updateFilterUI();
 });
 
 // --- Open editor under clicked card ---
