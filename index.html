@@ -189,10 +189,27 @@ function unflagWrong(id){
   localStorage.setItem('wrong_ids', JSON.stringify(wrong));
 }
 
+// --- JSON loader (robust) ---
 fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
-  .then(r => r.json())
-  .then(data => { ALL = data; mergeAdded(); idx = 0; render(); })
-  .catch(err => { document.getElementById('qtitle').textContent = 'Failed to load questions.'; });
+  .then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
+  .then(raw => {
+    // Accept either an array or an object {questions:[...]}
+    ALL = Array.isArray(raw) ? raw : (raw.questions ?? raw.items ?? []);
+    QUESTIONS = ALL.slice();
+    idx = 0;
+    // clear any stale status message if you set one earlier
+    const title = document.getElementById('qtitle');
+    if (title && /^Failed to load/.test(title.textContent)) title.textContent = '';
+    render();
+  })
+  .catch(err => {
+    console.error('Failed to load questions:', err);
+    const title = document.getElementById('qtitle');
+    if (title) title.textContent = 'Failed to load questions.';
+  });
 
 
 // --- Event listeners block ---
