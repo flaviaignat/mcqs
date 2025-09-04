@@ -28,6 +28,20 @@
 }
     .show .ansline { display:block; }
     .flag { color:#dc2626; font-size:12px; margin-left:6px; }
+    .pill {
+  display:inline-block;
+  padding:2px 8px;
+  border:1px solid #e5e7eb; /* matches --border tone */
+  border-radius:999px;
+  font-size:12px;
+  margin-left:6px;
+}
+.pill.attempted {
+  background:#ecfdf5;
+  border-color:#10b981;
+  color:#065f46;
+  font-weight:600;
+}
     footer { margin:24px 0; text-align:center; font-size:14px; }
     #debug { white-space:pre-wrap; background:#0b1020; color:#a7ffb1; padding:10px; border-radius:8px; font-size:12px; margin:12px 0; }
     #debug b { color:#fff; }
@@ -159,7 +173,14 @@ e. </textarea>
     let editorHost = null; 
     let showAnswers = false;
     let editsVisible = true;
+    // Attempted tracking (read-only here; written in index.html)
+let attempted = JSON.parse(localStorage.getItem('attempted_ids') || '[]');
 
+function isAttempted(id){
+  // also treat saved selections as attempted
+  const selections = JSON.parse(localStorage.getItem('mcqSelections') || '{}');
+  return attempted.includes(id) || !!(selections[id] && selections[id].length);
+}
 document.getElementById('toggle-edits').addEventListener('click', (e) => {
   editsVisible = !editsVisible;
   if (editsVisible) {
@@ -244,6 +265,9 @@ div.className = 'question' + (show ? ' show' : '');
 const flagged = Array.isArray(wrong) && wrong.includes(q.id)
   ? `<span class="flag">🚩 wrong</span>` : '';
 
+const attemptedBadge = isAttempted(q.id)
+  ? '<span class="pill attempted">✅ Attempted</span>' : '';
+
 const optsHtml = opts.map(o => {
   const isCorrect = show && corr.includes(String(o.key).toLowerCase());
   const cls = 'opt' + (isCorrect ? ' correct' : '');
@@ -252,14 +276,14 @@ const optsHtml = opts.map(o => {
 
 const ansLine = show ? `<div class="ansline">Correct: ${corr.join(', ')}</div>` : '';
 
+div.innerHTML = `
+  <div class="id">${q.id} ${flagged} ${attemptedBadge}</div>
+  <div class="stem">${q.stem}</div>
+  <div class="options">${optsHtml}</div>
+  ${ansLine}
+  <button class="edit-btn" data-id="${q.id}" style="margin-top:8px;">✏️ Edit</button>
+`;
 
-    div.innerHTML = `
-      <div class="id">${q.id} ${flagged}</div>
-      <div class="stem">${q.stem}</div>
-      <div class="options">${optsHtml}</div>
-      ${ansLine}
-      <button class="edit-btn" data-id="${q.id}" style="margin-top:8px;">✏️ Edit</button>
-    `;
     container.appendChild(div);
   });
 
