@@ -10,7 +10,7 @@
   <style>
     :root{--border:#e5e7eb;--primary:#2563eb;--muted:#6b7280}
     body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:#fff;color:#111827}
-    header{position:sticky;top:0;z-index:10;display:flex;justify-content:center;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);background:#fff}
+   header{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);background:#fff}
     main{max-width:900px;margin:16px auto;padding:0 16px}
     .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     input[type="search"]{padding:10px 12px;border:1px solid var(--border);border-radius:10px;min-width:260px;flex:1}
@@ -29,10 +29,30 @@
     .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
     .nav-links{display:flex;gap:8px}
     footer{margin-top:18px;color:var(--muted);font-size:12px}
+    .pill {
+  display:inline-block;
+  padding:2px 8px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  font-size:12px;
+  margin-left:6px;
+}
+.pill.attempted {
+  background:#ecfdf5;
+  border-color:#10b981;
+  color:#065f46;
+  font-weight:600;
+}
+#siteCounters { margin-left:12px; }
+
   </style>
 </head>
 <body>
-  <header><strong>quiz.practice</strong></header>
+  <header>
+  <strong>quiz.practice</strong>
+  <span id="siteCounters" class="muted"></span>
+</header>
+
 
   <main>
     <!-- Filters / Nav -->
@@ -162,7 +182,9 @@ if (VIEW.length === 0){
 
     const flagged = isFlagged(q.id) ? ' 🚩' : '';
     const star = flaggedByUser.includes(q.id) ? ' ⭐' : '';
-    document.getElementById('qtitle').textContent = `${q.id}${flagged}${star}  ${q.stem}`;
+    const attemptedBadge = isAttempted(q.id) ? '<span class="pill attempted">Attempted</span>' : '';
+document.getElementById('qtitle').innerHTML = `${q.id}${flagged}${star}  ${q.stem} ${attemptedBadge}`;
+
 
     const optWrap = document.getElementById('options');
     optWrap.innerHTML = '';
@@ -184,6 +206,8 @@ if (VIEW.length === 0){
     document.getElementById('progress').textContent = `${idx+1} of ${VIEW.length}`;
     setFeedback('');
     document.getElementById('continueBtn').disabled = true;
+updateCounters();
+
   }
 
   // ---------- Search ----------
