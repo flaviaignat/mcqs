@@ -169,6 +169,15 @@ function getViewSet(){
   }
   return QUESTIONS; // 'all'
 }
+// add this right after getViewSet()
+function updateCounters(){
+  const all = mergeAdded();                 // full bank (incl. added)
+  const total = all.length;
+  const attemptedCount = all.filter(q => isAttempted(q.id)).length;
+  const left = total - attemptedCount;
+  const el = document.getElementById('siteCounters');
+  if (el) el.textContent = `${total} total • ${attemptedCount} attempted • ${left} left`;
+}
 
   // ---------- Render ----------
   function render(){
