@@ -206,8 +206,7 @@ document.getElementById('qtitle').innerHTML = `${q.id}${flagged}${star}  ${q.ste
     document.getElementById('progress').textContent = `${idx+1} of ${VIEW.length}`;
     setFeedback('');
     document.getElementById('continueBtn').disabled = true;
-updateCounters();
-
+    updateCounters();
   }
 
   // ---------- Search ----------
@@ -322,20 +321,21 @@ bind('showAll','click', (e) => { e.preventDefault(); filterMode = 'all';        
     setFeedback('All flags cleared.', ''); render();
   });
 
-  // ---------- Data load ----------
-  fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
-    .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
-    .then(raw => {
-      ALL = Array.isArray(raw) ? raw : (raw.questions ?? raw.items ?? []);
-      QUESTIONS = ALL.slice();
-      idx = 0;
-      render();
-    })
-    .catch(err => {
-      console.error('Failed to load questions:', err);
-      const title = document.getElementById('qtitle');
-      if (title) title.textContent = 'Failed to load questions.';
-    });
+// ---------- Data load ----------
+fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(raw => {
+    ALL = Array.isArray(raw) ? raw : (raw.questions ?? raw.items ?? []);
+    QUESTIONS = ALL.slice();
+    idx = 0;
+    render();        // <-- no stray character before this
+  })
+  .catch(err => {
+    console.error('Failed to load questions:', err);
+    const title = document.getElementById('qtitle');
+    if (title) title.textContent = 'Failed to load questions.';
+  });
+
   </script>
 </body>
 </html>
