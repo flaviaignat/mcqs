@@ -37,6 +37,7 @@
   <main>
     <!-- Filters / Nav -->
     <div class="row">
+      <a id="showUnattempted" href="#" class="btn-link">Unattempted</a>
       <input id="search" type="search" placeholder="Search in question text..." />
       <a href="./topics.html" class="btn-link">Topics</a>
       <a href="./review_all.html" class="btn-link">Review All</a>
@@ -100,11 +101,23 @@
   let wrong = JSON.parse(localStorage.getItem('wrong_ids') || '[]');
   let flaggedByUser = JSON.parse(localStorage.getItem('user_flags') || '[]');
   let selections = JSON.parse(localStorage.getItem('mcqSelections') || '{}');
+let attempted = JSON.parse(localStorage.getItem('attempted_ids') || '[]');
+
+function isAttempted(id){
+  // Attempted if we've recorded it OR you have a saved selection for it
+  return attempted.includes(id) || !!(selections[id] && selections[id].length);
+}
+function markAttempted(id){
+  if (!attempted.includes(id)){
+    attempted.push(id);
+    localStorage.setItem('attempted_ids', JSON.stringify(attempted));
+  }
+}
 
   let ALL = [];
   let QUESTIONS = [];
   let idx = 0;
-  let filterReviewOnly = false;
+  let filterMode = 'all'; // 'all' | 'review' | 'unattempted'
 
   function mergeAdded(){
     if (!Array.isArray(added) || added.length===0) return ALL.slice();
@@ -113,24 +126,32 @@
     return Array.from(byId.values());
   }
 
-  function getViewSet(){
-    if (!filterReviewOnly) return QUESTIONS;
+function getViewSet(){
+  if (filterMode === 'review'){
     const need = new Set([...(wrong||[]), ...(flaggedByUser||[])]);
     return QUESTIONS.filter(q => need.has(q.id));
   }
+  if (filterMode === 'unattempted'){
+    return QUESTIONS.filter(q => !isAttempted(q.id));
+  }
+  return QUESTIONS; // 'all'
+}
 
   // ---------- Render ----------
   function render(){
     const VIEW = getViewSet();
-    if (VIEW.length === 0){
-      document.getElementById('qtitle').textContent = filterReviewOnly
-        ? 'No questions are flagged yet (⭐ or 🚩).'
-        : 'No questions match.';
-      document.getElementById('options').innerHTML = '';
-      document.getElementById('progress').textContent = '0 of 0';
-      document.getElementById('continueBtn').disabled = true;
-      return;
-    }
+if (VIEW.length === 0){
+  const msg =
+    (filterMode === 'review')       ? 'No questions are flagged yet (⭐ or 🚩).'
+  : (filterMode === 'unattempted')  ? 'All questions have been attempted 🎉'
+                                    : 'No questions match.';
+  document.getElementById('qtitle').textContent = msg;
+  document.getElementById('options').innerHTML = '';
+  document.getElementById('progress').textContent = '0 of 0';
+  document.getElementById('continueBtn').disabled = true;
+  return;
+}
+
 
     if (idx >= VIEW.length) idx = VIEW.length - 1;
     if (idx < 0) idx = 0;
@@ -194,13 +215,18 @@
   });
 
   // My Review / All
-  bind('showReview','click', (e) => { e.preventDefault(); filterReviewOnly = true; idx = 0; render(); });
-  bind('showAll','click', (e) => { e.preventDefault(); filterReviewOnly = false; idx = 0; render(); });
+bind('showReview','click', (e) => { e.preventDefault(); filterMode = 'review';      idx = 0; render(); });
+bind('showUnattempted','click', (e) => { e.preventDefault(); filterMode = 'unattempted'; idx = 0; render(); });
+bind('showAll','click', (e) => { e.preventDefault(); filterMode = 'all';         idx = 0; render(); });
+
 
   // Check
   bind('checkBtn','click', () => {
     const VIEW = getViewSet();
-    const q = VIEW[idx]; if (!q) return;
+    const q = VIEW[idx]; 
+    if (!q) return;  
+    markAttempted(q.id);
+
     const selected = Array.from(document.querySelectorAll('input[name="opts"]:checked')).map(i=>i.value).sort();
     const correct = Array.isArray(q.correct) ? [...q.correct].sort() : String(q.correct||'').split(/[,\s]+/).filter(Boolean).sort();
     if (JSON.stringify(selected) === JSON.stringify(correct)) {
