@@ -153,6 +153,11 @@
 </div>
 
 <script>
+function bind(id, ev, fn){
+  const el = document.getElementById(id);
+  if (el) el.addEventListener(ev, fn);
+}
+
 let ALL = [];
 let QUESTIONS = [];
 let idx = 0;
