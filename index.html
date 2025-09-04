@@ -64,6 +64,9 @@
     <input id="search" placeholder="Search in question text..." />
      <a href="./topics.html" class="btn-link">Topics</a>
 <a href="./review_all.html" class="btn-link">Review All</a>
+    <a href="#" id="showReview" class="btn-link">My Review (⭐+🚩)</a>
+<a href="#" id="showAll" class="btn-link">All Questions</a>
+
     <button id="applySearch">Search</button>
     <button id="clearSearch">Clear</button>
   </div>
@@ -77,16 +80,18 @@
 
     <div class="controls">
       <button id="checkBtn" class="primary">Check</button>
-      <button id="saveBtn">Save For Later</button>
+      <button id="flagBtn">Flag for Review</button>
       <button id="continueBtn" disabled>Continue</button>
+      
       <button id="showAnsBtn">Reveal Answer</button>
-      <button id="reportBtn">Report Error</button>
+      
       <button id="editBtn">Edit</button>
       <button id="addQBtn">Add Question</button>
       <button id="exportBtn">Export Corrections</button>
       <button id="reviewWrongBtn">Review Wrong</button>
       <button id="showAllBtn">All Questions</button>
       <button id="clearFlagsBtn">Clear Flags</button>
+      <button id="reportBtn">Report Error</button>
     </div>
     <div class="feedback" id="feedback"></div>
     <div class="progress" id="progress"></div>
@@ -154,6 +159,18 @@ let idx = 0;
 const selections = loadSelections();
 // ---- Wrong-answers flags (shared with stems_and_options page) ----
 let wrong = JSON.parse(localStorage.getItem('wrong_ids') || '[]');
+let filterReviewOnly = false;   // show only flagged/wrong when true
+
+function getViewSet(){
+  if (!filterReviewOnly) return QUESTIONS;
+  const needIds = new Set([
+    ...wrong,                     // 🚩 wrong by site
+    ...flaggedByUser              // ⭐ your own marks
+  ]);
+  return QUESTIONS.filter(q => needIds.has(q.id));
+}
+
+let flaggedByUser = JSON.parse(localStorage.getItem('user_flags') || '[]');
 
 function isFlagged(id){ return Array.isArray(wrong) && wrong.includes(id); }
 function flagWrong(id){
@@ -177,6 +194,7 @@ function render(){
   if(!q){ document.getElementById('qtitle').textContent = 'No questions match.'; return;}
   const flagged = isFlagged(q.id) ? ' 🚩' : '';
 document.getElementById('qtitle').textContent = `${q.id}${flagged}  ${q.stem}`;
+const userFlagged = flaggedByUser.includes(q.id) ? `<span class="flag">⭐ review</span>` : '';
 
   const optWrap = document.getElementById('options');
   optWrap.innerHTML = '';
@@ -198,6 +216,19 @@ document.getElementById('qtitle').textContent = `${q.id}${flagged}  ${q.stem}`;
   setFeedback('');
   document.getElementById('continueBtn').disabled = true;
 }
+document.getElementById('showReview').addEventListener('click', (e) => {
+  e.preventDefault();
+  filterReviewOnly = true;
+  idx = 0;            // start at the first in the filtered set
+  render();
+});
+
+document.getElementById('showAll').addEventListener('click', (e) => {
+  e.preventDefault();
+  filterReviewOnly = false;
+  idx = 0;
+  render();
+});
 
 function setFeedback(text, cls=''){
   const fb = document.getElementById('feedback');
@@ -222,6 +253,20 @@ document.getElementById('checkBtn').addEventListener('click', () => {
   }
 });
 
+document.getElementById('flagBtn').addEventListener('click', () => {
+  const q = CURRENT[idx];  // CURRENT + idx should already be in your code
+  if (!q) return;
+
+  if (!flaggedByUser.includes(q.id)) {
+    flaggedByUser.push(q.id);
+  } else {
+    // toggle: if already flagged, remove it
+    flaggedByUser = flaggedByUser.filter(id => id !== q.id);
+  }
+
+  localStorage.setItem('user_flags', JSON.stringify(flaggedByUser));
+  render();
+});
 
 document.getElementById('showAnsBtn').addEventListener('click', () => {
   const q = QUESTIONS[idx];
