@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MCQ Practice</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%232563eb'/><text x='50' y='62' text-anchor='middle' font-size='58' fill='white'>Q</text></svg>">
+
 <style>
   :root{
     --bg:#ffffff; --card:#ffffff; --border:#d9d9d9; --text:#1f2937; --muted:#6b7280; --primary:#2563eb; --btn:#f3f4f6;
@@ -335,6 +337,7 @@ bind('flagBtn','click', () => {
   localStorage.setItem('user_flags', JSON.stringify(flaggedByUser));
   render();
 });
+
 
 
 // Reveal answer (inline)
