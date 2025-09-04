@@ -189,17 +189,41 @@ function unflagWrong(id){
   localStorage.setItem('wrong_ids', JSON.stringify(wrong));
 }
 
-fetch('all_ques_checked.json')
+fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
   .then(r => r.json())
   .then(data => { ALL = data; mergeAdded(); idx = 0; render(); })
   .catch(err => { document.getElementById('qtitle').textContent = 'Failed to load questions.'; });
 
+
+// --- Event listeners block ---
+let t = null;
+
+// Search box (debounced) — uses #search
+bind('search','input', () => {
+  clearTimeout(t);
+  t = setTimeout(runSearchFilter, 150);
+});
+
 function render(){
-  const q = QUESTIONS[idx];
-  if(!q){ document.getElementById('qtitle').textContent = 'No questions match.'; return;}
+  const VIEW = getViewSet();
+  if (VIEW.length === 0){
+    document.getElementById('qtitle').textContent = filterReviewOnly
+      ? 'No questions are flagged yet (⭐ or 🚩).'
+      : 'No questions match.';
+    document.getElementById('options').innerHTML = '';
+    document.getElementById('progress').textContent = '0 of 0';
+    return;
+  }
+
+  // keep idx in bounds after filters/search
+  if (idx >= VIEW.length) idx = VIEW.length - 1;
+  if (idx < 0) idx = 0;
+
+  const q = VIEW[idx];
+
   const flagged = isFlagged(q.id) ? ' 🚩' : '';
-document.getElementById('qtitle').textContent = `${q.id}${flagged}  ${q.stem}`;
-const userFlagged = flaggedByUser.includes(q.id) ? `<span class="flag">⭐ review</span>` : '';
+  const star = flaggedByUser.includes(q.id) ? ' ⭐' : '';
+  document.getElementById('qtitle').textContent = `${q.id}${flagged}${star}  ${q.stem}`;
 
   const optWrap = document.getElementById('options');
   optWrap.innerHTML = '';
@@ -214,40 +238,37 @@ const userFlagged = flaggedByUser.includes(q.id) ? `<span class="flag">⭐ revie
     const saved = selections[q.id] || [];
     if(saved.includes(opt.key)) input.checked = true;
     label.appendChild(input);
-    label.appendChild(document.createTextNode(' ' + opt.text));
+    label.appendChild(document.createTextNode(` ${opt.key}. ${opt.text}`));
     optWrap.appendChild(label);
   });
-  document.getElementById('progress').textContent = `${idx+1} of ${QUESTIONS.length}`;
+
+  document.getElementById('progress').textContent = `${idx+1} of ${VIEW.length}`;
   setFeedback('');
   document.getElementById('continueBtn').disabled = true;
 }
-// --- Event listeners block ---
-let t = null;
 
-// Search box (debounced)
-bind('q','input', () => {
-  clearTimeout(t);
-  t = setTimeout(applySearch, 150);
-});
-
-// Manual search
-bind('applySearch','click', () => {
-  const q = document.getElementById('search').value.trim().toLowerCase();
-  const merged = mergeAdded(); // search in merged list so added questions appear
-  if(!q){ QUESTIONS = merged; idx = 0; render(); return; }
+function runSearchFilter(){
+  const qStr = (document.getElementById('search')?.value || '').trim().toLowerCase();
+  const merged = mergeAdded(); // include added questions
+  if(!qStr){ QUESTIONS = merged; idx = 0; render(); return; }
   QUESTIONS = merged.filter(item => {
     const optsText = (Array.isArray(item.options) ? item.options.map(o=>o.text)
                     : Object.values(item.options||{})).join(' ');
-    return (item.stem + ' ' + optsText).toLowerCase().includes(q);
+    return (item.stem + ' ' + optsText).toLowerCase().includes(qStr);
   });
   idx = 0; render();
+}
+
+// Manual search button
+bind('applySearch','click', runSearchFilter);
+
+// Clear search button
+bind('clearSearch','click', () => {
+  const s = document.getElementById('search');
+  if (s) s.value = '';
+  runSearchFilter();
 });
 
-// Clear search
-bind('clearSearch','click', () => {
-  document.getElementById('search').value = '';
-  QUESTIONS = mergeAdded(); idx = 0; render();
-});
 
 // My Review (⭐ + 🚩)
 bind('showReview','click', (e) => {
