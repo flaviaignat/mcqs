@@ -131,7 +131,7 @@
   },
   {
     "id": "1.4",
-    "stem": "CAP. 18 - RHEUMATOLOGY PROFZORILA (3) RHEUMATOLOGY ,",
+    "stem": "Duplicate - In early rheumatoid arthritis there are affected",
     "type": "multi",
     "options": [
       {
@@ -140,7 +140,7 @@
       },
       {
         "key": "b",
-        "text": "b. Proximal interphalangeal joints 78"
+        "text": "b. Proximal interphalangeal joints"
       },
       {
         "key": "c",
