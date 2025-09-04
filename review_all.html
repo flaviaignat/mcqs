@@ -335,11 +335,12 @@ function applySearch(){
     // --- Data load ---
     fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
       .then(r => { dbg('fetch status', r.status); return r.json(); })
-      .then(data => { 
-  ALL = data || []; 
+   .then(data => { 
+  // handle both array JSON and object-wrapped JSON
+  ALL = Array.isArray(data) ? data : (data?.questions ?? data?.items ?? []);
   dbg('json length', ALL.length); 
-  applySearch();        // render the questions
-  updateFilterUI();     // highlight the active filter button (e.g. "All")
+  applySearch();        
+  updateFilterUI();     
 })
       .catch(err => { dbg('fetch/json error:', err); document.getElementById('list').textContent = 'Failed to load questions.'; document.getElementById('count').textContent = ''; });
 
