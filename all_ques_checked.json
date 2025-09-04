@@ -257,7 +257,7 @@
   {
     "id": "1.6",
     "stem": "1.6 CAP. 23 - DIABETES MELLITUS - (to the Psychosocial Implications of Diabetes )\nThe destruction of pancreatic beta cells in type 1 diabetes is:",
-    "type": "multi",
+    "type": "single",
     "options": [
       {
         "key": "a",
