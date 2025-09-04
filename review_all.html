@@ -47,6 +47,9 @@
   transition: background 0.2s ease;
 }
 .float-btn:hover { background: #1d4ed8; }
+.hide-edits .edit-btn {
+  display: none;
+}
 
   </style>
 </head>
@@ -55,6 +58,7 @@
   <p style="margin:8px 0;">
     <a href="index.html" style="color:#2563eb; text-decoration:none;">⬅ Back to Quiz</a>
   </p>
+<button id="toggle-edits" class="btn-link">Hide Edit Buttons</button>
 
   <div id="debug"><b>Debug:</b> page loaded</div>
 
@@ -154,6 +158,19 @@ e. </textarea>
     let editingQ = null;
     let editorHost = null; 
     let showAnswers = false;
+    let editsVisible = true;
+
+document.getElementById('toggle-edits').addEventListener('click', (e) => {
+  editsVisible = !editsVisible;
+  if (editsVisible) {
+    document.body.classList.remove('hide-edits');
+    e.target.textContent = 'Hide Edit Buttons';
+  } else {
+    document.body.classList.add('hide-edits');
+    e.target.textContent = 'Show Edit Buttons';
+  }
+});
+
     // the .question div we clicked
 
     // --- Helpers ---
