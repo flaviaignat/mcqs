@@ -323,21 +323,29 @@ bind('checkBtn','click', () => {
 
 // ⭐ Flag for review (your own toggle)
 bind('flagBtn','click', () => {
-  const q = QUESTIONS[idx];        // use current rendered question
+  const q = QUESTIONS[idx];
   if (!q) return;
   if (!flaggedByUser.includes(q.id)) {
     flaggedByUser.push(q.id);
+    setFeedback('⭐ Added to My Review');
   } else {
     flaggedByUser = flaggedByUser.filter(id => id !== q.id);
+    setFeedback('⭐ Removed from My Review');
   }
   localStorage.setItem('user_flags', JSON.stringify(flaggedByUser));
   render();
 });
 
+
 // Reveal answer (inline)
 bind('showAnsBtn','click', () => {
   const q = QUESTIONS[idx];
-  setFeedback('Answer: ' + q.correct.join(', '), 'correct');
+  if (!q || !q.correct) {
+    setFeedback('No correct answer stored for this question.', 'wrong');
+    return;
+  }
+  const ans = Array.isArray(q.correct) ? q.correct.join(', ') : String(q.correct);
+  setFeedback('Answer: ' + ans, 'correct');
 });
 
 // Save selection for later (only binds if button exists)
