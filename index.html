@@ -353,6 +353,18 @@ bind('showAnsBtn','click', () => {
   } else {
     corr = [];
   }
+  if (!corr.length) {
+    setFeedback('No correct answer stored for this question.', 'wrong');
+    return;
+  }
+
+  setFeedback('Answer: ' + corr.join(', '), 'correct');
+});
+  // 🔎 Debug: show what Reveal used
+  const viewCorr = normalizeCorrect(q?.correct);
+  const baseCorr = normalizeCorrect(baseQ?.correct);
+  const used = viewCorr.length ? 'view' : (baseCorr.length ? 'base' : 'none');
+  logRevealDiag({ id: q.id, idxNow: idx, viewLen: total, viewCorr, baseCorr, used });
 
   if (!corr.length) {
     setFeedback('No correct answer stored for this question.', 'wrong');
