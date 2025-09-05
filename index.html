@@ -469,49 +469,6 @@ render();
     const title = document.getElementById('qtitle');
     if (title) title.textContent = 'Failed to load questions.';
   });
-// Single source of truth for the reveal logic
-function revealAnswerHandler(){
-  const VIEW = getViewSet();
-  const q = VIEW[idx];
-  if (!q) return;
-
-  const base = ALL.find(item => item && item.id === q.id);
-  let corr = q?.correct ?? base?.correct ?? null;
-
-  if (Array.isArray(corr)) {
-    corr = corr.map(s => String(s).trim().toLowerCase()).filter(Boolean);
-  } else if (typeof corr === 'string') {
-    corr = corr.split(/[,\s]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
-  }
-
-  if (!corr || corr.length === 0) {
-    setFeedback('No correct answer stored for this question.', 'wrong');
-    return;
-  }
-  setFeedback('Answer: ' + corr.join(', '), 'correct');
-}
-function logRevealDiag({ id, idxNow, viewLen, viewCorr, baseCorr, used }){
-  const v = (viewCorr||[]).join(', ');
-  const b = (baseCorr||[]).join(', ');
-  dbg(`Reveal ▶ id=${id} | idx=${idxNow}/${Math.max(0, viewLen-1)}\n  viewCorr: [${v}]  |  baseCorr: [${b}]  |  used: ${used}`);
-  if (viewCorr && baseCorr && viewCorr.length && baseCorr.length && v !== b) {
-    dbg(`⚠️ MISMATCH for ${id}: VIEW≠BASE`);
-  }
-}
-
-// Bind safely after DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('showAnsBtn');
-  if (btn) btn.addEventListener('click', revealAnswerHandler);
-});
-
-// Optional: allow inline fallback via onclick if needed
-window.revealAnswer = revealAnswerHandler;
-    function ensureIdxInRange(){
-  const V = getViewSet?.() || [];
-  if (idx < 0) idx = 0;
-  if (idx >= V.length) idx = Math.max(0, V.length - 1);
-}
 
   </script>
 </body>
