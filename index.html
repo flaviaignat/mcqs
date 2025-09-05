@@ -187,10 +187,17 @@ function updateCounters(){
   const el = document.getElementById('siteCounters');
   if (el) el.textContent = `${total} total • ${attemptedCount} attempted • ${left} left`;
 }
+function ensureIdxInRange(){
+  const V = (typeof getViewSet === 'function') ? getViewSet() : [];
+  if (idx < 0) idx = 0;
+  if (idx >= V.length) idx = Math.max(0, V.length - 1);
+}
 
   // ---------- Render ----------
-  function render(){
-    const VIEW = getViewSet();
+function render(){
+  ensureIdxInRange();              // <- add this
+  const VIEW = getViewSet();
+
 if (VIEW.length === 0){
   const msg =
     (filterMode === 'review')       ? 'No questions are flagged yet (⭐ or 🚩).'
@@ -311,28 +318,49 @@ bind('showAll','click', (e) => { e.preventDefault(); filterMode = 'all';        
   });
 
   // Reveal Answer (robust + fallback to base bank)
+// Robust Reveal Answer: guards empty view + out-of-range idx
 bind('showAnsBtn','click', () => {
-  const VIEW = getViewSet();
-  const q = VIEW[idx];
-  if (!q) return;
+  const VIEW = (typeof getViewSet === 'function') ? getViewSet() : [];
+  const total = Array.isArray(VIEW) ? VIEW.length : 0;
 
-  // Prefer current question.correct, else fall back to the base item from ALL
-  const base = ALL.find(item => item && item.id === q.id);
+  // 1) No questions in current view (e.g., Unattempted when none left)
+  if (total === 0) {
+    setFeedback('No questions in this view. Click “All Questions” to reset.', 'wrong');
+    // optional auto-reset:
+    // document.getElementById('showAllBtn')?.click();
+    return;
+  }
+
+  // 2) Index slipped out of range after a filter/shuffle ➜ clamp & (re)render if needed
+  if (idx < 0 || idx >= total) {
+    idx = 0;
+    if (typeof render === 'function') render();
+  }
+
+  // 3) Now it's safe to read the current question
+  const q = (typeof getViewSet === 'function') ? getViewSet()[idx] : null;
+  if (!q) { setFeedback('Question not available. Reload the page.', 'wrong'); return; }
+
+  // 4) Use current question answers, fallback to base bank if needed
+  const base = Array.isArray(ALL) ? ALL.find(item => item && item.id === q.id) : null;
   let corr = q?.correct ?? base?.correct ?? null;
 
-  // Normalize to array of letters
+  // normalize to array of letters
   if (Array.isArray(corr)) {
     corr = corr.map(s => String(s).trim().toLowerCase()).filter(Boolean);
   } else if (typeof corr === 'string') {
     corr = corr.split(/[,\s]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+  } else {
+    corr = [];
   }
 
-  if (!corr || corr.length === 0) {
+  if (!corr.length) {
     setFeedback('No correct answer stored for this question.', 'wrong');
     return;
   }
   setFeedback('Answer: ' + corr.join(', '), 'correct');
 });
+
 
   // Navigation
   function goNext(){ const VIEW = getViewSet(); if(idx < VIEW.length-1){ idx++; render(); } }
@@ -453,6 +481,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Optional: allow inline fallback via onclick if needed
 window.revealAnswer = revealAnswerHandler;
+    function ensureIdxInRange(){
+  const V = getViewSet?.() || [];
+  if (idx < 0) idx = 0;
+  if (idx >= V.length) idx = Math.max(0, V.length - 1);
+}
+
   </script>
 </body>
 </html>
