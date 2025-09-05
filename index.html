@@ -161,7 +161,7 @@ function markAttempted(id){
   let idx = 0;
   let filterMode = 'all'; // 'all' | 'review' | 'unattempted'
 
-  function mergeAdded(){
+  function ALL.slice(){
     if (!Array.isArray(added) || added.length===0) return ALL.slice();
     const byId = new Map(ALL.map(q=>[q.id,q]));
     for (const q of added) byId.set(q.id, q);
@@ -194,7 +194,7 @@ function getViewSet(){
 }
 // add this right after getViewSet()
 function updateCounters(){
-  const all = mergeAdded();                 // full bank (incl. added)
+  const all = ALL.slice();                 // full bank (incl. added)
   const total = all.length;
   const attemptedCount = all.filter(q => isAttempted(q.id)).length;
   const left = total - attemptedCount;
@@ -263,7 +263,7 @@ document.getElementById('qtitle').innerHTML = `${q.id}${flagged}${star}  ${q.ste
   let t = null;
   function runSearchFilter(){
     const qStr = (document.getElementById('search')?.value || '').trim().toLowerCase();
-    const merged = mergeAdded(); // include added questions
+    const merged = ALL.slice(); // include added questions
     if(!qStr){ QUESTIONS = merged; idx = 0; render(); return; }
     QUESTIONS = merged.filter(item => {
       const stem = (item.stem || '').toLowerCase();
@@ -390,21 +390,21 @@ logRevealDiag({ id: q.id, idxNow: idx, viewLen: total, viewCorr, baseCorr, used 
   bind('reviewWrongBtn','click', () => {
     const set = new Set(wrong||[]);
     if (set.size === 0){ setFeedback('No flagged questions yet.', ''); return; }
-    QUESTIONS = mergeAdded().filter(q => set.has(q.id));
+    QUESTIONS = ALL.slice().filter(q => set.has(q.id));
     idx = 0; filterReviewOnly = false; render();
     setFeedback(`Reviewing ${QUESTIONS.length} flagged question(s).`, '');
   });
 
   // Back to full set
   bind('showAllBtn','click', () => {
-    QUESTIONS = mergeAdded(); idx = 0; filterReviewOnly = false; render();
+    QUESTIONS = ALL.slice(); idx = 0; filterReviewOnly = false; render();
     setFeedback('Showing all questions.', '');
   });
 
   // Shuffle all questions randomly
   bind('shuffleBtn','click', () => {
     // Merge added to ensure custom questions are included
-    const merged = mergeAdded();
+    const merged = ALL.slice();
     // Fisher-Yates shuffle
     for (let i = merged.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -434,7 +434,7 @@ logRevealDiag({ id: q.id, idxNow: idx, viewLen: total, viewCorr, baseCorr, used 
     setFeedback('All flags cleared.', ''); render();
   });
 
-// ---------- Data load ----------
+// ---------- Data load AKA fetch ----------
 fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
   .then(r => {
     dbg('fetch status', r.status);
@@ -448,7 +448,7 @@ fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
 
     // Adapt to either array or {questions:[...]} or {items:[...]}
 ALL = Array.isArray(raw) ? raw : (raw.questions ?? raw.items ?? []);
-QUESTIONS = mergeAdded();
+QUESTIONS = ALL.slice();
 idx = 0;
 
 dbg('json length', ALL.length);
