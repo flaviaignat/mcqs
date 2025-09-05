@@ -768,7 +768,7 @@
   },
   {
     "id": "1.14",
-    "stem": "2 . Tubulo -interstitial nephropathy - p.1385 -1387 PROFZORILA / ASIST TANDRAU /",
+    "stem": "Acute tubule interstital nephropathy can be induced by the following drugs:",
     "type": "multi",
     "options": [
       {
@@ -785,7 +785,7 @@
       },
       {
         "key": "d",
-        "text": "d. Non -steroidal anti -inflammatory drugs 68"
+        "text": "d. Non -steroidal anti -inflammatory drugs"
       },
       {
         "key": "e",
@@ -2023,7 +2023,7 @@
   },
   {
     "id": "2.1",
-    "stem": "C HAP. 1 - PERIOPERATIVE EVALUATION AND SURGICAL PATIENT",
+    "stem": "The following statements from acute peritonitis are false:",
     "type": "multi",
     "options": [
       {
@@ -2845,7 +2845,7 @@
   },
   {
     "id": "II.25",
-    "stem": "Patients with supraventricular tachycardia, whether with atrioventricular re-",
+    "stem": "Patients with supraventricular tachycardia, whether with atrioventricular re-entry tachycardia or atrioventricular node re-entry tachycardia, have the following clinical picture except:",
     "type": "single",
     "options": [
       {
@@ -3401,8 +3401,12 @@
       },
       {
         "key": "c",
-        "text": "c. Smoking d, Hyperlipidaemia"
+        "text": "c. Smoking"
       },
+       {
+        "key": "d",
+        "text": "d. hyperlipidaemia"
+      }
       {
         "key": "e",
         "text": "e. Obesity"
@@ -3410,6 +3414,7 @@
     ],
     "correct": [
       "c",
+      "d",
       "e"
     ]
   },
@@ -3586,7 +3591,7 @@
       },
       {
         "key": "b",
-        "text": "b. Ischemic stroke 3 months ago 19"
+        "text": "b. Ischemic stroke 3 months ago"
       },
       {
         "key": "c",
@@ -3739,7 +3744,7 @@
   },
   {
     "id": "II.54",
-    "stem": "The most common causes of mitral regurgitation are the following, except:\na. Degenerative (myxomatous) valve damage,",
+    "stem": "The most common causes of mitral regurgitation are the following, except:",
     "type": "single",
     "options": [
       {
@@ -4064,6 +4069,10 @@
         "key": "b",
         "text": "b. Cardiac MRI c.Colour Doppler echocardiography"
       },
+       {
+        "key": "c",
+        "text": "c. colour doppler echocardiography"
+      }
       {
         "key": "d",
         "text": "d. Abdominal ultrasound"
@@ -4075,6 +4084,7 @@
     ],
     "correct": [
       "b",
+      "c",
       "e"
     ]
   },
@@ -4203,7 +4213,7 @@
       }
     ],
     "correct": [
-      "a",
+      "b",
       "b",
       "e"
     ]
@@ -4574,8 +4584,12 @@
       },
       {
         "key": "c",
-        "text": "c. Oedema and asthma d) Paradoxical pulse"
+        "text": "c. Oedema and asthma"
       },
+       {
+        "key": "d",
+        "text": "d. Paradoxical pulse"
+      }
       {
         "key": "e",
         "text": "e. Multi -orifical systolic murmur"
@@ -4852,7 +4866,11 @@
       },
       {
         "key": "b",
-        "text": "b. Hyperkalaemia c Angioedema"
+        "text": "b. Hyperkalaemia"
+      },
+       {
+        "key": "c",
+        "text": "c. Angioedema"
       },
       {
         "key": "d",
@@ -4865,7 +4883,8 @@
     ],
     "correct": [
       "a",
-      "b"
+      "b",
+      "c"
     ]
   },
   {
@@ -5061,8 +5080,8 @@
     ]
   },
   {
-    "id": "3.2",
-    "stem": "CAP. 10 - PAEDIATRI CS- p.212 -243 SL DUMITRA (14) GRIDS 10",
+    "id": "IX.1",
+    "stem": "The ventricular septal defect is:",
     "type": "multi",
     "options": [
       {
@@ -6015,8 +6034,12 @@
       },
       {
         "key": "d",
-        "text": "d. Long -term PPI may be needed in patients at risk of bleeding if further bleeding could be fatal e.in patients with H. pylori infection, eradication treatment should be administered regardless of whether or not it is associated with UG or UD"
+        "text": "d. Long -term PPI may be needed in patients at risk of bleeding if further bleeding could be fatal"
       }
+      {
+        "key": "e",
+        "text": "e. in patients with H. pylori infection, eradication treatment should be administered regardless of whether or not it is associated with UG or UD"
+      },
     ],
     "correct": [
       "a",
@@ -6142,7 +6165,11 @@
       },
       {
         "key": "d",
-        "text": "d. consists of partial gastrectomy or vagotomy. e.is the treatment of choice in digestive haemorrhage"
+        "text": "d. consists of partial gastrectomy or vagotomy."
+      }
+       {
+        "key": "e",
+        "text": "e.is the treatment of choice in digestive haemorrhage"
       }
     ],
     "correct": [
@@ -6166,8 +6193,12 @@
       },
       {
         "key": "c",
-        "text": "c. The symptoms are usually severe and there are often long -term problems d.is a common complication of duodenal ulcer"
+        "text": "c. The symptoms are usually severe and there are often long -term problems"
       },
+      {
+        "key": "d",
+        "text": "d. is a common complication of duodenal ulcer."
+      }
       {
         "key": "e",
         "text": "e. hyperglycaemia may occur ."
@@ -6990,6 +7021,10 @@
     "type": "multi",
     "options": [
       {
+        "key": "a",
+        "text": "a. In phase 1 of chronic VHB-positive VHB infection - Treatment is not indicated, but close follow-up is required"
+      }
+      {
         "key": "b",
         "text": "b. Phase 2 of chronic VHB -positive HBeAg infection is frequently manifested by liver destruction, with fluctuating elevated transaminases (ALT) in the presence of elevated levels of HBeAg -positive infection"
       },
@@ -7007,6 +7042,7 @@
       }
     ],
     "correct": [
+      "a",
       "b",
       "c"
     ]
@@ -7148,7 +7184,11 @@
     "options": [
       {
         "key": "a",
-        "text": "a. Patients with moderate or severe necroinflammation and / or hepatic fibrosis, with HBV DNA above 2,000 Ul / ml and / or ALT above the upper limit of normal, usually receive therapy b.If cirrhosis is present, treatment should be given if HBV DNA exceeds 2,000 Ul / ml and / or ALT above the upper limit of normal,"
+        "text": "a. Patients with moderate or severe necroinflammation and / or hepatic fibrosis, with HBV DNA above 2,000 Ul / ml and / or ALT above the upper limit of normal, usually receive therapy"
+      },
+        {
+        "key": "b",
+        "text": "b.If cirrhosis is present, treatment should be given if HBV DNA exceeds 2,000 Ul / ml and / or ALT above the upper limit of normal,"
       },
       {
         "key": "c",
@@ -7211,6 +7251,10 @@
         "text": "a. Most acute infections are asymptomatic b Investigations include evaluation of HCV RNA and anti -HCV antibodies"
       },
       {
+        "key": "b",
+        "text": "b. Investigations include evaluation of HCV RNA and anti-HCV antibodies"
+      },
+      {
         "key": "c",
         "text": "c. VHC RNA can be detected 1 to 8 weeks after infection."
       },
@@ -7233,12 +7277,16 @@
     "stem": "Patients with chronic VHC infection",
     "type": "multi",
     "options": [
-      {
+        {
         "key": "a",
-        "text": "a. the disease is detected by checking HCV antibodies"
+        "text": "a. are usually asymptomatic"
       },
       {
         "key": "b",
+        "text": "b. the disease is detected by checking HCV antibodies"
+      },
+      {
+        "key": "c",
         "text": "b. shows significant increases in transaminases (usually AST)."
       },
       {
@@ -7263,11 +7311,15 @@
     "options": [
       {
         "key": "a",
-        "text": "a. HIV co -infection"
+        "text": "a. Alcohol consumption"
       },
       {
         "key": "b",
-        "text": "b. malnutrition"
+        "text": "b. HIV co -infection"
+      },
+      {
+        "key": "c",
+        "text": "c. malnutrition"
       },
       {
         "key": "d",
@@ -7304,6 +7356,10 @@
       {
         "key": "d",
         "text": "d. consist of the administration of a single tablet for 8 -12 weeks."
+      }
+        {
+        "key": "e",
+        "text": "e. the effectiveness of the treatment is a achieved 70%."
       }
     ],
     "correct": [
@@ -7611,6 +7667,10 @@
     "type": "multi",
     "options": [
       {
+        "key": "a",
+        "text": "a. may be pre-hepatic - blocking the portal vein before the liver"
+      },
+      {
         "key": "b",
         "text": "b. can be intrahepatic - upsetting the architecture of the liver"
       },
@@ -7628,6 +7688,7 @@
       }
     ],
     "correct": [
+      "a",
       "b",
       "c"
     ]
@@ -7902,6 +7963,10 @@
         "key": "b",
         "text": "b. Infectious organisms reach the peritoneum hematogenously; most are Escherichia coli, Klebsiella or enterococci."
       },
+        {
+        "key": "c",
+        "text": "c. should be suspected in any patient with or without ascites whose clinical condition is deteriorating"
+      }
       {
         "key": "d",
         "text": "d. Pain and fever are common"
@@ -7944,6 +8009,7 @@
       }
     ],
     "correct": [
+      "b"
       "c",
       "d"
     ]
@@ -8623,7 +8689,23 @@
     "options": [
       {
         "key": "?",
-        "text": "a. Schizocytes \nb. Spherocytes \nc. Fragmented erythrocytes \nd. Microcytic erythrocytes, hypochromic \ne. Macrocytes"
+        "text": "Schizocytes"
+      }
+            {
+        "key": "b",
+        "text": "Spherocytes"
+      },
+      {
+        "key": "c",
+        "text": "Fragmented erythrocytes"
+      },
+      {
+        "key": "d",
+        "text": "Microcytic erythrocytes, hyperchromic"
+      },
+      {
+        "key": "e",
+        "text": "Macrocytes"
       }
     ],
     "correct": [
