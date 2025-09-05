@@ -317,35 +317,34 @@ bind('showAll','click', (e) => { e.preventDefault(); filterMode = 'all';        
     render();
   });
 
-  // Reveal Answer (robust + fallback to base bank)
-// Robust Reveal Answer: guards empty view + out-of-range idx
+ // Reveal Answer (robust: handles empty view, clamps idx, safe fallback)
 bind('showAnsBtn','click', () => {
   const VIEW = (typeof getViewSet === 'function') ? getViewSet() : [];
   const total = Array.isArray(VIEW) ? VIEW.length : 0;
 
-  // 1) No questions in current view (e.g., Unattempted when none left)
+  // Empty view (e.g., no Unattempted left)
   if (total === 0) {
     setFeedback('No questions in this view. Click “All Questions” to reset.', 'wrong');
-    // optional auto-reset:
-    // document.getElementById('showAllBtn')?.click();
     return;
   }
 
-  // 2) Index slipped out of range after a filter/shuffle ➜ clamp & (re)render if needed
-  if (idx < 0 || idx >= total) {
-    idx = 0;
-    if (typeof render === 'function') render();
+  // Clamp idx if it slipped after filter/shuffle
+  if (idx < 0 || idx >= total) idx = 0;
+
+  const q = VIEW[idx];
+  if (!q) {
+    setFeedback('Question not available. Reload the page.', 'wrong');
+    return;
   }
 
-  // 3) Now it's safe to read the current question
-  const q = (typeof getViewSet === 'function') ? getViewSet()[idx] : null;
-  if (!q) { setFeedback('Question not available. Reload the page.', 'wrong'); return; }
+  // Prefer current view answers; fallback to working bank (QUESTIONS)
+  const baseQ = Array.isArray(QUESTIONS)
+    ? QUESTIONS.find(x => x && x.id === q.id)
+    : null;
 
-  // 4) Use current question answers, fallback to base bank if needed
- const base = Array.isArray(QUESTIONS) ? QUESTIONS.find(item => item && item.id === q.id) : null;
-  let corr = q?.correct ?? base?.correct ?? null;
+  let corr = q?.correct ?? baseQ?.correct ?? null;
 
-  // normalize to array of letters
+  // Normalize to array of letters (lowercase)
   if (Array.isArray(corr)) {
     corr = corr.map(s => String(s).trim().toLowerCase()).filter(Boolean);
   } else if (typeof corr === 'string') {
@@ -353,23 +352,16 @@ bind('showAnsBtn','click', () => {
   } else {
     corr = [];
   }
-  if (!corr.length) {
-    setFeedback('No correct answer stored for this question.', 'wrong');
-    return;
-  }
-
-  setFeedback('Answer: ' + corr.join(', '), 'correct');
-});
-  // 🔎 Debug: show what Reveal used
-  const viewCorr = normalizeCorrect(q?.correct);
-  const baseCorr = normalizeCorrect(baseQ?.correct);
-  const used = viewCorr.length ? 'view' : (baseCorr.length ? 'base' : 'none');
-  logRevealDiag({ id: q.id, idxNow: idx, viewLen: total, viewCorr, baseCorr, used });
 
   if (!corr.length) {
     setFeedback('No correct answer stored for this question.', 'wrong');
     return;
   }
+const viewCorr = Array.isArray(q.correct) ? q.correct.map(s=>String(s).trim().toLowerCase()).filter(Boolean) : [];
+const baseCorr = Array.isArray(baseQ?.correct) ? baseQ.correct.map(s=>String(s).trim().toLowerCase()).filter(Boolean) : [];
+const used = viewCorr.length ? 'view' : (baseCorr.length ? 'base' : 'none');
+logRevealDiag({ id: q.id, idxNow: idx, viewLen: total, viewCorr, baseCorr, used });
+
   setFeedback('Answer: ' + corr.join(', '), 'correct');
 });
 
@@ -483,6 +475,14 @@ function revealAnswerHandler(){
     return;
   }
   setFeedback('Answer: ' + corr.join(', '), 'correct');
+}
+function logRevealDiag({ id, idxNow, viewLen, viewCorr, baseCorr, used }){
+  const v = (viewCorr||[]).join(', ');
+  const b = (baseCorr||[]).join(', ');
+  dbg(`Reveal ▶ id=${id} | idx=${idxNow}/${Math.max(0, viewLen-1)}\n  viewCorr: [${v}]  |  baseCorr: [${b}]  |  used: ${used}`);
+  if (viewCorr && baseCorr && viewCorr.length && baseCorr.length && v !== b) {
+    dbg(`⚠️ MISMATCH for ${id}: VIEW≠BASE`);
+  }
 }
 
 // Bind safely after DOM is ready
