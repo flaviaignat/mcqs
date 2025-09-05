@@ -167,6 +167,20 @@ function markAttempted(id){
     for (const q of added) byId.set(q.id, q);
     return Array.from(byId.values());
   }
+// Debug helper: logs to your Debug panel if `dbg` exists, else to console
+function logRevealDiag({ id, idxNow, viewLen, viewCorr, baseCorr, used }){
+  const toStr = a => (a || []).join(', ');
+  const line  =
+    `Reveal ▶ id=${id} | idx=${idxNow}/${Math.max(0, viewLen-1)}\n` +
+    `  viewCorr: [${toStr(viewCorr)}]  |  baseCorr: [${toStr(baseCorr)}]  |  used: ${used}`;
+  if (typeof dbg === 'function') dbg(line); else console.log(line);
+
+  if ((viewCorr?.length || 0) && (baseCorr?.length || 0) &&
+      toStr(viewCorr) !== toStr(baseCorr)) {
+    const warn = `⚠️ MISMATCH for ${id}: VIEW≠BASE`;
+    if (typeof dbg === 'function') dbg(warn); else console.warn(warn);
+  }
+}
 
 function getViewSet(){
   if (filterMode === 'review'){
