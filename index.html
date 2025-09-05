@@ -342,7 +342,7 @@ bind('showAnsBtn','click', () => {
   if (!q) { setFeedback('Question not available. Reload the page.', 'wrong'); return; }
 
   // 4) Use current question answers, fallback to base bank if needed
-  const base = Array.isArray(ALL) ? ALL.find(item => item && item.id === q.id) : null;
+ const base = Array.isArray(QUESTIONS) ? QUESTIONS.find(item => item && item.id === q.id) : null;
   let corr = q?.correct ?? base?.correct ?? null;
 
   // normalize to array of letters
@@ -430,7 +430,7 @@ fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
 
     // Adapt to either array or {questions:[...]} or {items:[...]}
 ALL = Array.isArray(raw) ? raw : (raw.questions ?? raw.items ?? []);
-QUESTIONS = ALL.slice();
+QUESTIONS = mergeAdded();
 idx = 0;
 
 dbg('json length', ALL.length);
