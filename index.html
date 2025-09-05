@@ -161,12 +161,6 @@ function markAttempted(id){
   let idx = 0;
   let filterMode = 'all'; // 'all' | 'review' | 'unattempted'
 
-  function ALL.slice(){
-    if (!Array.isArray(added) || added.length===0) return ALL.slice();
-    const byId = new Map(ALL.map(q=>[q.id,q]));
-    for (const q of added) byId.set(q.id, q);
-    return Array.from(byId.values());
-  }
 // Debug helper: logs to your Debug panel if `dbg` exists, else to console
 function logRevealDiag({ id, idxNow, viewLen, viewCorr, baseCorr, used }){
   const toStr = a => (a || []).join(', ');
