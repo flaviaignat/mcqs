@@ -65,6 +65,9 @@
       <a id="showAll" href="#" class="btn-link">All Questions</a>
       <button id="applySearch" class="btn">Search</button>
       <button id="clearSearch" class="btn">Clear</button>
+      <!-- Added shuffle and start-from-end buttons -->
+      <button id="shuffleBtn" class="btn">Shuffle</button>
+      <button id="startEndBtn" class="btn">Start from End</button>
     </div>
 
     <!-- Quiz card -->
@@ -331,6 +334,31 @@ bind('showAll','click', (e) => { e.preventDefault(); filterMode = 'all';        
   bind('showAllBtn','click', () => {
     QUESTIONS = mergeAdded(); idx = 0; filterReviewOnly = false; render();
     setFeedback('Showing all questions.', '');
+  });
+
+  // Shuffle all questions randomly
+  bind('shuffleBtn','click', () => {
+    // Merge added to ensure custom questions are included
+    const merged = mergeAdded();
+    // Fisher-Yates shuffle
+    for (let i = merged.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [merged[i], merged[j]] = [merged[j], merged[i]];
+    }
+    QUESTIONS = merged;
+    idx = 0;
+    filterMode = 'all';
+    setFeedback('Questions shuffled.', '');
+    render();
+  });
+
+  // Start from the last question in the current view
+  bind('startEndBtn','click', () => {
+    const view = getViewSet();
+    if (view.length === 0) return;
+    idx = view.length - 1;
+    setFeedback('Starting from last question.', '');
+    render();
   });
 
   // Clear all 🚩 flags
