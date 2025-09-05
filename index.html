@@ -229,12 +229,15 @@ if (VIEW.length === 0){
     if (idx < 0) idx = 0;
 
     const q = VIEW[idx];
+  window.CURRENT_QID = q?.id;     // remember what's on screen
+
 
     const flagged = isFlagged(q.id) ? ' 🚩' : '';
     const star = flaggedByUser.includes(q.id) ? ' ⭐' : '';
     const attemptedBadge = isAttempted(q.id) ? '<span class="pill attempted">Attempted</span>' : '';
 document.getElementById('qtitle').innerHTML = `${q.id}${flagged}${star}  ${q.stem} ${attemptedBadge}`;
 
+document.getElementById('qtitle').dataset.qid = q.id;  // also tag the DOM (optional but handy)
 
     const optWrap = document.getElementById('options');
     optWrap.innerHTML = '';
@@ -315,6 +318,35 @@ bind('showAll','click', (e) => { e.preventDefault(); filterMode = 'all';        
       document.getElementById('qtitle').textContent = `${q.id} 🚩${flaggedByUser.includes(q.id)?' ⭐':''}  ${q.stem}`;
     }
   });
+// Reveal Answer (always uses the ID that's actually on screen)
+bind('showAnsBtn','click', () => {
+  const idOnScreen = document.getElementById('qtitle')?.dataset.qid || window.CURRENT_QID;
+  if (!idOnScreen) {
+    setFeedback('No question in view. Click “All Questions” to reset.', 'wrong');
+    return;
+  }
+
+  const VIEW = (typeof getViewSet === 'function') ? getViewSet() : [];
+  const fromView = Array.isArray(VIEW) ? VIEW.find(x => x && x.id === idOnScreen) : null;
+  const fromBank = Array.isArray(QUESTIONS) ? QUESTIONS.find(x => x && x.id === idOnScreen) : null;
+  const q = fromView || fromBank;
+  if (!q) { setFeedback('Question not available. Reload the page.', 'wrong'); return; }
+
+  let corr = q.correct;
+  if (Array.isArray(corr)) {
+    corr = corr.map(s => String(s).trim().toLowerCase()).filter(Boolean);
+  } else if (typeof corr === 'string') {
+    corr = corr.split(/[,\s]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+  } else {
+    corr = [];
+  }
+
+  if (!corr.length) {
+    setFeedback('No correct answer stored for this question.', 'wrong');
+    return;
+  }
+  setFeedback('Answer: ' + corr.join(', '), 'correct');
+});
 
   // ⭐ Flag for Review
   bind('flagBtn','click', () => {
@@ -346,6 +378,7 @@ bind('showAnsBtn','click', () => {
   if (idx < 0 || idx >= total) idx = 0;
 
   const q = VIEW[idx];
+  window.CURRENT_QID = q?.id;
   if (!q) {
     setFeedback('Question not available. Reload the page.', 'wrong');
     return;
