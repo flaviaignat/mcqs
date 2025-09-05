@@ -15606,7 +15606,11 @@
       },
       {
         "key": "c",
-        "text": "c. an increase in PaCO2 (> 8 kPa,> 60mmHg) d or a decrease in PaCO2 (<8 kPa, <60mmHg)"
+        "text": "c. an increase in PaCO2 (> 8 kPa,> 60mmHg)"
+      },
+      {
+        "key": "d",
+        "text": "d or a decrease in PaCO2 (<8 kPa, <60mmHg)"
       },
       {
         "key": "e",
