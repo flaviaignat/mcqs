@@ -123,6 +123,10 @@
 })();
 
   // ---------- Helpers ----------
+  function normId(s){
+  return String(s || '').trim().replace(/[.,;:]+$/, '');
+}
+
   function bind(id, ev, fn){
     const el = document.getElementById(id);
     if (el) el.addEventListener(ev, fn);
@@ -312,18 +316,22 @@ bind('showAll','click', (e) => { e.preventDefault(); filterMode = 'all';        
   });
 // Reveal Answer (always uses the ID that's actually on screen)
 bind('showAnsBtn','click', () => {
+  // 1) get the rendered ID
   const idOnScreen = document.getElementById('qtitle')?.dataset.qid || window.CURRENT_QID;
   if (!idOnScreen) {
     setFeedback('No question in view. Click “All Questions” to reset.', 'wrong');
     return;
   }
 
+  // 2) find the SAME question by normalized ID
   const VIEW = (typeof getViewSet === 'function') ? getViewSet() : [];
-  const fromView = Array.isArray(VIEW) ? VIEW.find(x => x && x.id === idOnScreen) : null;
-  const fromBank = Array.isArray(QUESTIONS) ? QUESTIONS.find(x => x && x.id === idOnScreen) : null;
+  const fromView = Array.isArray(VIEW) ? VIEW.find(x => normId(x?.id) === normId(idOnScreen)) : null;
+  const fromBank = Array.isArray(QUESTIONS) ? QUESTIONS.find(x => normId(x?.id) === normId(idOnScreen)) : null;
   const q = fromView || fromBank;
+
   if (!q) { setFeedback('Question not available. Reload the page.', 'wrong'); return; }
 
+  // 3) normalize correct → array of letters
   let corr = q.correct;
   if (Array.isArray(corr)) {
     corr = corr.map(s => String(s).trim().toLowerCase()).filter(Boolean);
@@ -337,8 +345,10 @@ bind('showAnsBtn','click', () => {
     setFeedback('No correct answer stored for this question.', 'wrong');
     return;
   }
+
   setFeedback('Answer: ' + corr.join(', '), 'correct');
 });
+
 
   // ⭐ Flag for Review
   bind('flagBtn','click', () => {
