@@ -358,9 +358,17 @@ bind('showAnsBtn','click', () => {
   const VIEW = (typeof getViewSet === 'function') ? getViewSet() : [];
 
   // Find by the same key used at render time
-  const fromView = Array.isArray(VIEW)      ? VIEW.find(x => qKey(x) === keyOnScreen)      : null;
-  const fromBank = Array.isArray(QUESTIONS) ? QUESTIONS.find(x => qKey(x) === keyOnScreen) : null;
+  const fromView = Array.isArray(VIEW)
+    ? VIEW.find(x => x && qKey(x) === keyOnScreen)
+    : null;
+
+  // Try QUESTIONS first (current working set), then fall back to ALL (base bank)
+  const fromBank =
+    (Array.isArray(QUESTIONS) ? QUESTIONS.find(x => x && qKey(x) === keyOnScreen) : null) ||
+    (Array.isArray(ALL)        ? ALL.find(x => x && qKey(x) === keyOnScreen)        : null);
+
   const q = fromView || fromBank;
+
 
   if (!q) {
     setFeedback('Question not available. Reload the page.', 'wrong');
