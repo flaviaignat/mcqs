@@ -224,8 +224,6 @@ if (VIEW.length === 0){
 
     const q = VIEW[idx];
   window.CURRENT_QID = q?.id;     // remember what's on screen
-
-
     const flagged = isFlagged(q.id) ? ' 🚩' : '';
     const star = flaggedByUser.includes(q.id) ? ' ⭐' : '';
     const attemptedBadge = isAttempted(q.id) ? '<span class="pill attempted">Attempted</span>' : '';
@@ -356,56 +354,6 @@ bind('showAnsBtn','click', () => {
     localStorage.setItem('user_flags', JSON.stringify(flaggedByUser));
     render();
   });
-
- // Reveal Answer (robust: handles empty view, clamps idx, safe fallback)
-bind('showAnsBtn','click', () => {
-  const VIEW = (typeof getViewSet === 'function') ? getViewSet() : [];
-  const total = Array.isArray(VIEW) ? VIEW.length : 0;
-
-  // Empty view (e.g., no Unattempted left)
-  if (total === 0) {
-    setFeedback('No questions in this view. Click “All Questions” to reset.', 'wrong');
-    return;
-  }
-
-  // Clamp idx if it slipped after filter/shuffle
-  if (idx < 0 || idx >= total) idx = 0;
-
-  const q = VIEW[idx];
-  window.CURRENT_QID = q?.id;
-  if (!q) {
-    setFeedback('Question not available. Reload the page.', 'wrong');
-    return;
-  }
-
-  // Prefer current view answers; fallback to working bank (QUESTIONS)
-  const baseQ = Array.isArray(QUESTIONS)
-    ? QUESTIONS.find(x => x && x.id === q.id)
-    : null;
-
-  let corr = q?.correct ?? baseQ?.correct ?? null;
-
-  // Normalize to array of letters (lowercase)
-  if (Array.isArray(corr)) {
-    corr = corr.map(s => String(s).trim().toLowerCase()).filter(Boolean);
-  } else if (typeof corr === 'string') {
-    corr = corr.split(/[,\s]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
-  } else {
-    corr = [];
-  }
-
-  if (!corr.length) {
-    setFeedback('No correct answer stored for this question.', 'wrong');
-    return;
-  }
-const viewCorr = Array.isArray(q.correct) ? q.correct.map(s=>String(s).trim().toLowerCase()).filter(Boolean) : [];
-const baseCorr = Array.isArray(baseQ?.correct) ? baseQ.correct.map(s=>String(s).trim().toLowerCase()).filter(Boolean) : [];
-const used = viewCorr.length ? 'view' : (baseCorr.length ? 'base' : 'none');
-logRevealDiag({ id: q.id, idxNow: idx, viewLen: total, viewCorr, baseCorr, used });
-
-  setFeedback('Answer: ' + corr.join(', '), 'correct');
-});
-
 
   // Navigation
   function goNext(){ const VIEW = getViewSet(); if(idx < VIEW.length-1){ idx++; render(); } }
