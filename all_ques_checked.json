@@ -6039,7 +6039,7 @@
       {
         "key": "e",
         "text": "e. in patients with H. pylori infection, eradication treatment should be administered regardless of whether or not it is associated with UG or UD"
-      },
+      }
     ],
     "correct": [
       "a",
@@ -6166,7 +6166,7 @@
       {
         "key": "d",
         "text": "d. consists of partial gastrectomy or vagotomy."
-      }
+      },
        {
         "key": "e",
         "text": "e.is the treatment of choice in digestive haemorrhage"
@@ -6198,7 +6198,7 @@
       {
         "key": "d",
         "text": "d. is a common complication of duodenal ulcer."
-      }
+      },
       {
         "key": "e",
         "text": "e. hyperglycaemia may occur ."
@@ -7023,7 +7023,7 @@
       {
         "key": "a",
         "text": "a. In phase 1 of chronic VHB-positive VHB infection - Treatment is not indicated, but close follow-up is required"
-      }
+      },
       {
         "key": "b",
         "text": "b. Phase 2 of chronic VHB -positive HBeAg infection is frequently manifested by liver destruction, with fluctuating elevated transaminases (ALT) in the presence of elevated levels of HBeAg -positive infection"
@@ -7356,7 +7356,7 @@
       {
         "key": "d",
         "text": "d. consist of the administration of a single tablet for 8 -12 weeks."
-      }
+      },
         {
         "key": "e",
         "text": "e. the effectiveness of the treatment is a achieved 70%."
@@ -7966,7 +7966,7 @@
         {
         "key": "c",
         "text": "c. should be suspected in any patient with or without ascites whose clinical condition is deteriorating"
-      }
+      },
       {
         "key": "d",
         "text": "d. Pain and fever are common"
@@ -8009,7 +8009,7 @@
       }
     ],
     "correct": [
-      "b"
+      "b",
       "c",
       "d"
     ]
@@ -8690,7 +8690,7 @@
       {
         "key": "?",
         "text": "Schizocytes"
-      }
+      },
             {
         "key": "b",
         "text": "Spherocytes"
