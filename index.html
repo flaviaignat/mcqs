@@ -309,16 +309,29 @@ bind('showAll','click', (e) => { e.preventDefault(); filterMode = 'all';        
     render();
   });
 
-  // Reveal Answer (robust)
-  bind('showAnsBtn','click', () => {
-    const VIEW = getViewSet();
-    const q = VIEW[idx]; if (!q || !q.correct) {
-      setFeedback('No correct answer stored for this question.', 'wrong');
-      return;
-    }
-    const ans = Array.isArray(q.correct) ? q.correct.join(', ') : String(q.correct);
-    setFeedback('Answer: ' + ans, 'correct');
-  });
+  // Reveal Answer (robust + fallback to base bank)
+bind('showAnsBtn','click', () => {
+  const VIEW = getViewSet();
+  const q = VIEW[idx];
+  if (!q) return;
+
+  // Prefer current question.correct, else fall back to the base item from ALL
+  const base = ALL.find(item => item && item.id === q.id);
+  let corr = q?.correct ?? base?.correct ?? null;
+
+  // Normalize to array of letters
+  if (Array.isArray(corr)) {
+    corr = corr.map(s => String(s).trim().toLowerCase()).filter(Boolean);
+  } else if (typeof corr === 'string') {
+    corr = corr.split(/[,\s]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+  }
+
+  if (!corr || corr.length === 0) {
+    setFeedback('No correct answer stored for this question.', 'wrong');
+    return;
+  }
+  setFeedback('Answer: ' + corr.join(', '), 'correct');
+});
 
   // Navigation
   function goNext(){ const VIEW = getViewSet(); if(idx < VIEW.length-1){ idx++; render(); } }
@@ -387,12 +400,21 @@ fetch('./all_ques_checked.json?v=20250903', { cache: 'no-store' })
     dbg('json type', Array.isArray(raw) ? 'array' : typeof raw, 'keys', keys.join(',') || '-');
 
     // Adapt to either array or {questions:[...]} or {items:[...]}
-    ALL = Array.isArray(raw) ? raw : (raw.questions ?? raw.items ?? []);
-    QUESTIONS = ALL.slice();
-    idx = 0;
+ALL = Array.isArray(raw) ? raw : (raw.questions ?? raw.items ?? []);
+QUESTIONS = ALL.slice();
+idx = 0;
 
-    dbg('json length', ALL.length);
-    render();
+dbg('json length', ALL.length);
+
+// 🔍 Audit for missing/empty correct
+(function audit() {
+  const bad = (ALL || []).filter(x => !x || !x.correct ||
+               (Array.isArray(x.correct) && x.correct.length === 0));
+  if (bad.length) dbg('Missing/empty correct for IDs:', bad.map(x => x.id).join(', '));
+})();
+        
+render();
+
   })
   .catch(err => {
     console.error('Failed to load questions:', err);
