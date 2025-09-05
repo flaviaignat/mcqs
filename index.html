@@ -204,6 +204,21 @@ function ensureIdxInRange(){
   if (idx < 0) idx = 0;
   if (idx >= V.length) idx = Math.max(0, V.length - 1);
 }
+// Normalize things
+function normId(s){
+  return String(s || '').trim().replace(/[.,;:]+$/, '');  // strip trailing punctuation
+}
+function makeSlug(s){
+  return String(s || '')
+    .toLowerCase()
+    .replace(/[\s"'”“’‘\-–—/\\.,;:()]+/g, ' ')  // flatten punctuation to spaces
+    .trim()
+    .replace(/\s+/g, ' ')                        // collapse spaces
+    .slice(0, 64);                                // short, stable prefix
+}
+function qKey(q){
+  return `${normId(q?.id)}|${makeSlug(q?.stem)}`;
+}
 
   // ---------- Render ----------
 function render(){
@@ -232,8 +247,9 @@ if (VIEW.length === 0){
     const star = flaggedByUser.includes(q.id) ? ' ⭐' : '';
     const attemptedBadge = isAttempted(q.id) ? '<span class="pill attempted">Attempted</span>' : '';
 document.getElementById('qtitle').innerHTML = `${q.id}${flagged}${star}  ${q.stem} ${attemptedBadge}`;
-
 document.getElementById('qtitle').dataset.qid = q.id;  // also tag the DOM (optional but handy)
+document.getElementById('qtitle').dataset.qkey = qKey(q);  // ← add this
+window.CURRENT_QKEY = document.getElementById('qtitle').dataset.qkey;
 
     const optWrap = document.getElementById('options');
     optWrap.innerHTML = '';
@@ -314,24 +330,29 @@ bind('showAll','click', (e) => { e.preventDefault(); filterMode = 'all';        
       document.getElementById('qtitle').textContent = `${q.id} 🚩${flaggedByUser.includes(q.id)?' ⭐':''}  ${q.stem}`;
     }
   });
-// Reveal Answer (always uses the ID that's actually on screen)
+// Reveal Answer (uses the rendered key: id+stem)
 bind('showAnsBtn','click', () => {
-  // 1) get the rendered ID
-  const idOnScreen = document.getElementById('qtitle')?.dataset.qid || window.CURRENT_QID;
-  if (!idOnScreen) {
+  const el = document.getElementById('qtitle');
+  const keyOnScreen = el?.dataset.qkey || window.CURRENT_QKEY;
+
+  if (!keyOnScreen) {
     setFeedback('No question in view. Click “All Questions” to reset.', 'wrong');
     return;
   }
 
-  // 2) find the SAME question by normalized ID
   const VIEW = (typeof getViewSet === 'function') ? getViewSet() : [];
-  const fromView = Array.isArray(VIEW) ? VIEW.find(x => normId(x?.id) === normId(idOnScreen)) : null;
-  const fromBank = Array.isArray(QUESTIONS) ? QUESTIONS.find(x => normId(x?.id) === normId(idOnScreen)) : null;
+
+  // Find by the same key used at render time
+  const fromView = Array.isArray(VIEW)      ? VIEW.find(x => qKey(x) === keyOnScreen)      : null;
+  const fromBank = Array.isArray(QUESTIONS) ? QUESTIONS.find(x => qKey(x) === keyOnScreen) : null;
   const q = fromView || fromBank;
 
-  if (!q) { setFeedback('Question not available. Reload the page.', 'wrong'); return; }
+  if (!q) {
+    setFeedback('Question not available. Reload the page.', 'wrong');
+    return;
+  }
 
-  // 3) normalize correct → array of letters
+  // Normalize 'correct'
   let corr = q.correct;
   if (Array.isArray(corr)) {
     corr = corr.map(s => String(s).trim().toLowerCase()).filter(Boolean);
@@ -348,6 +369,7 @@ bind('showAnsBtn','click', () => {
 
   setFeedback('Answer: ' + corr.join(', '), 'correct');
 });
+
 
 
   // ⭐ Flag for Review
