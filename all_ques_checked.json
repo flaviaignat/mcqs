@@ -16273,23 +16273,23 @@
     "options": [
       {
         "key": "a",
-        "text": "hyperthermia"
+        "text": "high intensity heart sounds"
       },
       {
         "key": "b",
-        "text": "coagulopathy"
+        "text": "jugging flow"
       },
       {
         "key": "c",
-        "text": "hypothermia"
+        "text": "hypotension"
       },
       {
         "key": "d",
-        "text": "acidosis"
+        "text": "paradox pulse"
       },
       {
         "key": "e",
-        "text": "alkalosis"
+        "text": "venous distension present only in inspiration"
       }
     ],
     "correct": [
