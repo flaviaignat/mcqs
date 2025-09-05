@@ -164,6 +164,21 @@ function markAttempted(id){
   let QUESTIONS = [];
   let idx = 0;
   let filterMode = 'all'; // 'all' | 'review' | 'unattempted'
+// --- helpers for stable matching ---
+function normId(s){
+  return String(s || '').trim().replace(/[.,;:]+$/, '');
+}
+function makeSlug(s){
+  return String(s || '')
+    .toLowerCase()
+    .replace(/[\s"'”“’‘\-–—/\\.,;:()]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .slice(0, 64);
+}
+function qKey(q){
+  return `${normId(q?.id)}|${makeSlug(q?.stem)}`;
+}
 
 // Debug helper: logs to your Debug panel if `dbg` exists, else to console
 function logRevealDiag({ id, idxNow, viewLen, viewCorr, baseCorr, used }){
