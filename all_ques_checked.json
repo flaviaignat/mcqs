@@ -3486,7 +3486,7 @@
   },
   {
     "id": "II.45",
-    "stem": "The linear elements of negative prognosis of a patient with coronary",
+    "stem": "The linear elements of negative prognosis of a patient with coronary acute syndrome are:",
     "type": "multi",
     "options": [
       {
@@ -4069,7 +4069,7 @@
       },
       {
         "key": "b",
-        "text": "b. Cardiac MRI c.Colour Doppler echocardiography"
+        "text": "b. Cardiac MRI"
       },
        {
         "key": "c",
@@ -6897,7 +6897,11 @@
     "options": [
       {
         "key": "a",
-        "text": "a. it is excellent, most patients recovering completely. b .. Death is caused by acute liver necrosis."
+        "text": "a. it is excellent, most patients recovering completely"
+      },
+      {
+        "key": "b",
+        "text": "b. Death is caused by acute liver necrosis."
       },
       {
         "key": "c",
@@ -6914,6 +6918,7 @@
     ],
     "correct": [
       "a",
+      "b",
       "c",
       "d"
     ]
@@ -7250,7 +7255,7 @@
     "options": [
       {
         "key": "a",
-        "text": "a. Most acute infections are asymptomatic b Investigations include evaluation of HCV RNA and anti -HCV antibodies"
+        "text": "a. Most acute infections are asymptomatic"
       },
       {
         "key": "b",
@@ -7271,6 +7276,7 @@
     ],
     "correct": [
       "a",
+      "b",
       "c"
     ]
   },
@@ -7606,29 +7612,28 @@
     "options": [
       {
         "key": "a",
-        "text": "a. active sepsis in a territory other than the hepatobiliary tree"
+        "text": "a. acute liver failute of any cause"
       },
       {
         "key": "b",
-        "text": "b. extrahepatic malignancies,"
+        "text": "b. cirrhosis complications that no longer respond to therapy,"
       },
       {
         "key": "c",
-        "text": "c. liver metastases (except neuroendocrine ones)"
+        "text": "c. alcoholic liver disease when serum bilirubin is constantly elevated >100umol/L"
       },
       {
         "key": "d",
-        "text": "d. acute liver failure"
+        "text": "d. chronic hepatitis C if Fibroscan <25kPa"
       },
       {
         "key": "e",
-        "text": "e. age <10 years"
+        "text": "e. chronic hepatits B if HBV DNA has high values"
       }
     ],
     "correct": [
       "a",
-      "b",
-      "c"
+      "b"
     ]
   },
   {
